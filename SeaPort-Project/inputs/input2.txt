@@ -20,14 +20,14 @@ port Lanshan 10000 0
 //    pship  <string> <int> <int> <double> <double> <double> <double> <int> <int> <int>
     pship           Gallinules 30000 20000 125.99 234.70 60.67 37.14 746 246 246
     pship               Remora 30001 20001 126.38 358.27 74.12 31.54 3768 979 979
-    pship     Gallinules 30004 20004 86.74 450.43 33.13 41.67 2143 920 920
+    pship     Absentmindedness 30004 20004 86.74 450.43 33.13 41.67 2143 920 920
     pship        Preanesthetic 30003 20003 149.85 483.92 125.71 31.21 166 409 83
     pship            Shoetrees 30002 20002 134.41 156.96 120.31 35.20 1673 633 633
 
 // cship  name index parent(dock/port) weight length width draft cargoWeight cargoVolume cargoValue
 //    cship  <string> <int> <int> <double> <double> <double> <double> <double> <double> <double>
     cship            Erosional 40001 10000 200.80 242.33 38.31 23.49 172.73 188.54 235.57
-    cship            Kielbasas 40001 10000 120.85 362.55 96.82 19.09 33.08 188.31 261.57
+    cship            Kielbasas 40000 10000 120.85 362.55 96.82 19.09 33.08 188.31 261.57
     cship             Generics 40002 10000 79.90 234.26 73.18 15.71 125.27 179.00 729.95
     cship            Barcelona 40003 10000 219.92 443.54 104.44 34.16 86.69 139.89 813.72
     cship              Toluene 40004 10000 189.12 448.99 73.97 37.67 88.90 175.03 1002.63
