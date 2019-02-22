@@ -63,7 +63,7 @@ public class SeaPortProgram extends JFrame {
         final String[] jobsTableTitles = {"Ship", "Name", "Status", "Progress", "", ""};
 
         // Preset Dimensions for each Component
-        final Dimension minimumFrameDimension = new Dimension(1125,350);
+        final Dimension minimumFrameDimension = new Dimension(1125,619);
         final Dimension comboBoxDimension = new Dimension(120, 25);
         final Dimension txtFieldDimension = new Dimension(170, 25);
         final Dimension btnDimension = new Dimension(95, 25);
@@ -128,7 +128,7 @@ public class SeaPortProgram extends JFrame {
         // JFrame Settings
         setTitle("SeaPort Program");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(1125, 619);
+        setSize(minimumFrameDimension);
         setLocationRelativeTo(null);
         setMinimumSize(minimumFrameDimension);
         setVisible(true);
@@ -149,7 +149,6 @@ public class SeaPortProgram extends JFrame {
 
         // Set JTables Borders
         jobsTable.setBorder(null);
-        resourcesTable.setBorder(null);
 
         // Set Button Sizes
         readBtn.setPreferredSize(btnDimension);
