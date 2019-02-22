@@ -1,11 +1,19 @@
 package SeaPortProject;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.text.DefaultCaret;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -20,21 +28,24 @@ public class SeaPortProgram extends JFrame {
 
     // GUI Variables
     private JPanel mainPanel = new JPanel();
-
-    private JComboBox <String> searchCombo = new JComboBox <> ();
-    private JComboBox <String> sortCombo = new JComboBox <> ();
-    private JComboBox <String> sortTargetCombo = new JComboBox <> ();
-
+    private JComboBox <String> searchCombo = new JComboBox<>();
+    private JComboBox <String> sortCombo = new JComboBox<>();
+    private JComboBox <String> sortTargetCombo = new JComboBox<>();
     private JTextField searchField = new JTextField ();
 
-    private JTextArea worldTextArea = new JTextArea();
-    private JTextArea searchTextArea = new JTextArea();
+    private JTextArea resultsTextArea = new JTextArea();
+    private JTextArea logTextArea = new JTextArea();
+    private JTree worldTree;
+
+    private JTable jobsTable, resourcesTable;
+
+
 
     /**
      * Constructs the GUI and Action Listeners
      */
     private SeaPortProgram() {
-
+        // Combo Items
         final String[] searchComboItems = {"Index", "Name", "Skill", "Type"};
         final String[] sortComboItems = {"Ports", "Docks", "Ships", "Queue", "People", "Jobs"};
 
@@ -46,13 +57,21 @@ public class SeaPortProgram extends JFrame {
         final String[] peopleSortTargets = {"name"};
         final String[] jobsSortTargets = {"name"};
 
+        // All Sort Targets
         final String[][] sortTargets = {seaPortSortTargets, docksSortTargets, allShipsSortTargets, queuedShipsSortTargets, peopleSortTargets, jobsSortTargets};
 
+        final String[] jobsTableTitles = {"Ship", "Name", "Status", "Progress", "", ""};
+
         // Preset Dimensions for each Component
+        final Dimension minimumFrameDimension = new Dimension(1125,350);
         final Dimension comboBoxDimension = new Dimension(120, 25);
         final Dimension txtFieldDimension = new Dimension(170, 25);
         final Dimension btnDimension = new Dimension(95, 25);
-        final Dimension scrollPaneDimension = new Dimension(530, 400);
+        final Dimension worldPaneDimension = new Dimension(239, 500);
+        final Dimension tabbedPaneDimension = new Dimension(835, 209);
+
+        // Preset Font
+        final Font defaultFont = new Font ("Monospaced", Font.PLAIN, 12);
 
         // Create JPanels
         JPanel optionsPanel = new JPanel();
@@ -61,8 +80,9 @@ public class SeaPortProgram extends JFrame {
         JPanel sortPanel = new JPanel();
 
         JPanel viewPanel = new JPanel();
-        JPanel logPanel = new JPanel();
-        JPanel resultsPanel = new JPanel();
+
+        // Create TextAreas
+        JTextArea worldTextArea = new JTextArea();
 
         // Create Buttons
         JButton readBtn = new JButton ("Read");
@@ -71,24 +91,65 @@ public class SeaPortProgram extends JFrame {
         JButton sortBtn = new JButton ("Sort");
         JButton clearBtn = new JButton("Clear");
 
+        // Create JTree
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("SeaPorts");
+        worldTree = new JTree(root);
+
+        // Create JTables
+        DefaultTableModel jobsTableModel = new DefaultTableModel(jobsTableTitles, 0);
+        jobsTable = new JTable(jobsTableModel);
+        TableCellRenderer ProgressBarRenderer = new ProgressCellRenderer();
+        jobsTable.getColumn("Progress").setCellRenderer(ProgressBarRenderer);
+
         // Create Scroll Panes
-        JScrollPane worldScrollPane = new JScrollPane(worldTextArea);
-        JScrollPane sortScrollPane = new JScrollPane(searchTextArea);
+        JScrollPane worldScrollPane = new JScrollPane(worldTree);
+        JScrollPane resultsScrollPane = new JScrollPane(resultsTextArea);
+        JScrollPane logScrollPane = new JScrollPane(logTextArea);
+        JScrollPane jobsScrollPane = new JScrollPane(jobsTable);
+        JScrollPane resourcesScrollPane = new JScrollPane(resourcesTable);
+
+        // Create JTabbed Panes
+        JTabbedPane textTabbedPane = new JTabbedPane();
+        textTabbedPane.add("Log", logScrollPane);
+        textTabbedPane.add("Search Results", resultsScrollPane);
+
+        JTabbedPane tablesTabbedPane = new JTabbedPane();
+        tablesTabbedPane.add("Jobs", jobsScrollPane);
+        tablesTabbedPane.add("Resources", resourcesScrollPane);
+
+        // Create JSplit Panes
+        JSplitPane jobsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textTabbedPane, tablesTabbedPane);
+        JSplitPane worldSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, worldScrollPane, jobsSplitPane);
+
+        // Create Carets
+        DefaultCaret logCaret = (DefaultCaret) logTextArea.getCaret();
+        DefaultCaret searchCaret = (DefaultCaret) logTextArea.getCaret();
 
         // JFrame Settings
         setTitle("SeaPort Program");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(1125, 556);
-        setLocation(300, 400);
+        setSize(1125, 619);
+        setLocationRelativeTo(null);
+        setMinimumSize(minimumFrameDimension);
         setVisible(true);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(0,0));
 
-        // Set Panel Border Titles
+
+        // Set Panel Borders
         filePanel.setBorder(new TitledBorder("File"));
         searchPanel.setBorder(new TitledBorder("Search"));
         sortPanel.setBorder(new TitledBorder("Sort"));
-        logPanel.setBorder(new TitledBorder("World Log"));
-        resultsPanel.setBorder(new TitledBorder("Search Results"));
+
+        // Set Panel Layouts
+        optionsPanel.setLayout(new BorderLayout(0,0));
+        viewPanel.setLayout(new BorderLayout(0,0));
+
+        // Set Scroll Pane Borders
+        worldScrollPane.setBorder(new TitledBorder("World"));
+
+        // Set JTables Borders
+        jobsTable.setBorder(null);
+        resourcesTable.setBorder(null);
 
         // Set Button Sizes
         readBtn.setPreferredSize(btnDimension);
@@ -127,16 +188,33 @@ public class SeaPortProgram extends JFrame {
         }
 
         // worldTextArea Settings
-        worldTextArea.setFont(new Font ("Monospaced", Font.PLAIN, 12));
+        worldTextArea.setFont(defaultFont);
         worldTextArea.setEditable(false);
 
         // searchTextArea Settings
-        searchTextArea.setFont(new Font ("Monospaced", Font.PLAIN, 12));
-        searchTextArea.setEditable(false);
+        resultsTextArea.setFont(defaultFont);
+        resultsTextArea.setEditable(false);
+        searchCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        // logTextArea Settings
+        logTextArea.setFont(defaultFont);
+        logTextArea.setEditable(false);
+        logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        // jobsTable Settings
+        jobsTable.setFont(defaultFont);
 
         // Set Scroll Panes Sizes
-        worldScrollPane.setPreferredSize(scrollPaneDimension);
-        sortScrollPane.setPreferredSize(scrollPaneDimension);
+        worldScrollPane.setPreferredSize(worldPaneDimension);
+        resultsScrollPane.setPreferredSize(tabbedPaneDimension);
+        logScrollPane.setPreferredSize(tabbedPaneDimension);
+        jobsScrollPane.setPreferredSize(tabbedPaneDimension);
+        resourcesScrollPane.setPreferredSize(tabbedPaneDimension);
+
+        // JSplit Pane Settings
+        jobsSplitPane.setBorder(null);
+        worldSplitPane.setBorder(new EtchedBorder());
+        worldSplitPane.setDividerSize(12);
 
         // Add filePanel Components
         filePanel.add(readBtn);
@@ -153,24 +231,17 @@ public class SeaPortProgram extends JFrame {
         sortPanel.add(sortTargetCombo);
         sortPanel.add(sortBtn);
 
-        // Add logPanel Components
-        logPanel.add(worldScrollPane);
-
-        // Add resultsPanel Components
-        resultsPanel.add(sortScrollPane);
-
         // Add Panels to optionsPanel
         optionsPanel.add(filePanel, BorderLayout.WEST);
         optionsPanel.add(searchPanel, BorderLayout.CENTER);
         optionsPanel.add(sortPanel, BorderLayout.EAST);
 
         // Add Panels to viewPanel
-        viewPanel.add(logPanel, BorderLayout.WEST);
-        viewPanel.add(resultsPanel, BorderLayout.EAST);
+        viewPanel.add(worldSplitPane, BorderLayout.CENTER);
 
         // Add Panels to mainPanel
         mainPanel.add(optionsPanel, BorderLayout.NORTH);
-        mainPanel.add(viewPanel, BorderLayout.SOUTH);
+        mainPanel.add(viewPanel, BorderLayout.CENTER);
 
         // Add mainPanel to JFrame
         add(mainPanel);
@@ -181,8 +252,8 @@ public class SeaPortProgram extends JFrame {
         readBtn.addActionListener (e -> readFile());
         displayBtn.addActionListener (e -> display());
         clearBtn.addActionListener (e -> {
-            worldTextArea.setText("");
-            searchTextArea.setText("");
+            logTextArea.setText("");
+            resultsTextArea.setText("");
         });
         searchBtn.addActionListener(e -> search());
         sortCombo.addActionListener(e -> {
@@ -206,27 +277,148 @@ public class SeaPortProgram extends JFrame {
 
         Scanner sc;
 
+        updateLog("Read File Initialized");
+
         try {
             sc = new Scanner(jFileChooser.getSelectedFile());
-        } catch (FileNotFoundException | NullPointerException e1) {
+        } catch (FileNotFoundException | NullPointerException e) {
             noFileMessageDialog();
+            updateLog("Read File Failed - No File Found");
             return;
         }
 
-        world = new World(sc);
+        updateLog("Read File Success");
+
+        world = new World(sc, this);
+        updateLog("World Processing");
         world.process(sc);
+        updateLog("World Processed");
+
+        display();
     }
 
     /**
      * Displays All Data from the currently loaded text file
      */
     private void display() {
+        updateLog("Display Update Initialized");
+
         if (world == null) {
             noWorldMessageDialog();
-        } else {
-            worldTextArea.append(world.toString());
+            updateLog("Display Update Failed - No World Found");
+            return;
         }
+
+        updateWorldDisplay();
+        updateJobDisplay();
+
+        updateLog("Display Update Success");
+
         validate();
+    }
+
+    /**
+     *
+     */
+    private void updateWorldDisplay() {
+        DefaultTreeModel treeModel = (DefaultTreeModel) worldTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+
+        root.removeAllChildren();
+        treeModel.reload();
+
+        // Creates the World JTree
+        for (SeaPort port : world.getPorts()) {
+
+            // All SeaPort Nodes
+            DefaultMutableTreeNode portNode = new DefaultMutableTreeNode(port.getName());
+            root.add(portNode);
+
+            // All Docks Node
+            DefaultMutableTreeNode docks = new DefaultMutableTreeNode("Docks");
+            portNode.add(docks);
+
+            for (Dock dock : port.getDocks()) {
+                // Adds Dock Nodes to All Docks
+                DefaultMutableTreeNode dockNode = new DefaultMutableTreeNode(dock.getName());
+                docks.add(dockNode);
+
+                // Adds Ship Node to Dock
+                DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode("Ship: " + dock.getShip().getName());
+                dockNode.add(shipNode);
+
+                // Adds Job Nodes to Docked Ship
+                for (Job job : dock.getShip().getJobs()) {
+                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
+                    shipNode.add(jobNode);
+                }
+            }
+
+            // All Ships Node
+            DefaultMutableTreeNode ships = new DefaultMutableTreeNode("Ships");
+            portNode.add(ships);
+
+            for (Ship ship : port.getShips()) {
+                // Adds Ship Nodes to All Ships
+                DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode(ship.getName());
+                ships.add(shipNode);
+            }
+
+            // All Nodes in Queue
+            DefaultMutableTreeNode queue = new DefaultMutableTreeNode("Queue");
+            portNode.add(queue);
+
+            for (Ship ship : port.getQueue()) {
+                // Adds Ship Nodes to Queue
+                DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode("Ship: " + ship.getName());
+                queue.add(shipNode);
+                // Adds Job Nodes to Queued Ship
+                for (Job job : ship.getJobs()) {
+                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
+                    shipNode.add(jobNode);
+                }
+            }
+
+            // All Persons Node
+            DefaultMutableTreeNode persons = new DefaultMutableTreeNode("Persons");
+            portNode.add(persons);
+
+            for (Person person : port.getPersons()) {
+                // Adds Person Nodes to All Persons
+                DefaultMutableTreeNode personNode = new DefaultMutableTreeNode(person.getName());
+                persons.add(personNode);
+            }
+
+            // All Ships Node
+            DefaultMutableTreeNode jobs = new DefaultMutableTreeNode("Jobs");
+            portNode.add(jobs);
+
+            for (Ship ship : port.getShips()) {
+                for (Job job : ship.getJobs()) {
+                    // Adds Ship Nodes to All Ships
+                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
+                    jobs.add(jobNode);
+                }
+            }
+        }
+
+        worldTree.expandRow(0);
+    }
+
+    /**
+     *
+     */
+    private void updateJobDisplay() {
+        DefaultTableModel jobsTableModel = (DefaultTableModel) jobsTable.getModel();
+        jobsTableModel.setRowCount(0);
+
+        for (SeaPort port : world.getPorts()) {
+            for (Ship ship : port.getShips()) {
+                for (Job job : ship.getJobs()) {
+                    jobsTableModel.addRow(new Object[]{ship.getName(), job.getName(), job.getStatus(), job.getProgressBar()});
+                }
+            }
+        }
     }
 
     /**
@@ -236,13 +428,17 @@ public class SeaPortProgram extends JFrame {
         String comboSelectedItem = String.valueOf(searchCombo.getSelectedItem());
         String fieldText = searchField.getText();
 
+        updateLog("World Search Initialized");
+
         if (world == null) {
             noWorldMessageDialog();
+            updateLog("World Search Failed - No World Found");
             return;
         }
 
         if (comboSelectedItem == null || fieldText.equals("")) {
             searchErrorMessageDialog();
+            updateLog("World Search Failed - Incorrect Search Parameters");
             return;
         }
 
@@ -255,7 +451,6 @@ public class SeaPortProgram extends JFrame {
      * @param target term that will be searched
      */
     private void searchType(String type, String target) {
-        final String resultType = "Search";
 
         ArrayList<Thing> results = new ArrayList<>();
 
@@ -274,20 +469,44 @@ public class SeaPortProgram extends JFrame {
                 break;
         }
 
-        searchTextArea.append(resultsToString(results, resultType));
+        updateLog("World Search - Type: " + type);
+
+        resultsTextArea.append(searchResultsToString(results, type + " - " + target));
+
+        updateLog("World Search Success");
+    }
+
+    /**
+     * search helper method, is used to build the results string
+     * @param results ArrayList of all results from a search
+     * @return Formatted String of all results
+     */
+    private String searchResultsToString(ArrayList<Thing> results, String params) {
+        StringBuilder out = new StringBuilder("Search Results: " + params);
+        if (results.isEmpty()) {
+            out.append("\n    NO RESULTS FOUND");
+        } else {
+            for (Thing thing : results) {
+                out.append("\n    ").append(thing);
+            }
+        }
+        out.append("\n\n");
+        return out.toString();
     }
 
     /**
      * Sorts the data <code>sortComboItem</code> structure based on the <code>sortTarget</code>
      */
     private void sort(){
-        final String resultType = "Sort";
 
         String sortComboItem = String.valueOf(sortCombo.getSelectedItem());
         String target = String.valueOf(sortTargetCombo.getSelectedItem());
 
+        updateLog("World Sort Initialized");
+
         if (world == null) {
             noWorldMessageDialog();
+            updateLog("World Sort Failed - No World Found");
             return;
         }
 
@@ -316,12 +535,19 @@ public class SeaPortProgram extends JFrame {
                 }
                 break;
             case "Jobs":
-                // class is not yet implemented
+                for (SeaPort port : world.getPorts()) {
+                    for (Ship ship : port.getShips()) {
+                        ship.getJobs().sort(new ThingComparator(target));
+                    }
+                }
                 break;
         }
 
-        ArrayList<Thing> results = new ArrayList<>(world.getPorts());
-        searchTextArea.append(resultsToString(results, resultType));
+        updateLog("World Sort - Type: " + sortComboItem);
+
+        updateLog("World Sort Success");
+
+        display();
     }
 
     /**
@@ -355,20 +581,20 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * search helper method, is used to build the search results string
-     * @param results ArrayList of all results from a search
-     * @return Formatted String of all results
+     *
+     * @param logMessage
      */
-    private String resultsToString(ArrayList<Thing> results, String type) {
-        StringBuilder out = new StringBuilder("\n\n" + type +  " Results: ");
-        if (results.isEmpty()) {
-            out.append("\n    NO RESULTS FOUND");
-        } else {
-            for (Thing thing : results) {
-                out.append("\n    ").append(thing);
-            }
-        }
-        return out.toString();
+    void updateLog(String logMessage) {
+        String currentTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(new Date().getTime());
+        logTextArea.append(currentTime + " | " + logMessage + "\n");
+    }
+
+    /**
+     *
+     * @return
+     */
+    JTable getJobsTable() {
+        return jobsTable;
     }
 
     /**
@@ -376,6 +602,6 @@ public class SeaPortProgram extends JFrame {
      * @param args will not affect the program
      */
     public static void main(String[] args) {
-        SeaPortProgram program = new SeaPortProgram();
+        new SeaPortProgram();
     }
 }

@@ -42,6 +42,6 @@ class Dock extends Thing {
      */
     @Override
     public String toString() {
-        return "    " + "Dock: " + super.toString() + "\n" + "        Ship: " + ship;
+        return "Dock: " + super.toString() + "\n" + "      Ship: " + ship;
     }
 }

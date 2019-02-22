@@ -29,6 +29,7 @@ class Ship extends Thing {
         if (sc.hasNextDouble()) length = sc.nextDouble();
         if (sc.hasNextDouble()) width = sc.nextDouble();
         if (sc.hasNextDouble()) draft = sc.nextDouble();
+        jobs = new ArrayList<>();
     }
 
     /**
@@ -147,8 +148,19 @@ class Ship extends Thing {
      * toString method
      * @return Formatted String of Ship
      */
-    @Override
     public String toString() {
-        return super.toString() + " " + this.getWeight() + " " + this.getLength() + " " + this.getWidth() + " " + this.getDraft();
+        StringBuilder out = new StringBuilder(super.toString() + " "
+                + this.getWeight() + " "
+                + this.getLength() + " "
+                + this.getWidth() + " "
+                + this.getDraft());
+
+        if (jobs.size() > 0) {
+            for (Job job: jobs) {
+                out.append("\n        ").append(job);
+            }
+        }
+
+        return out.toString();
     }
 }

@@ -12,6 +12,7 @@ import java.util.Scanner;
  */
 public class World extends Thing {
 
+    private SeaPortProgram program;
     private ArrayList <SeaPort> ports;
     private PortTime time;
 
@@ -19,9 +20,10 @@ public class World extends Thing {
      * Constructs the World Object
      * @param sc a file Scanner of the current text file
      */
-    World(Scanner sc) {
+    World(Scanner sc, SeaPortProgram program) {
         super(sc);
         ports = new ArrayList<>();
+        this.program = program;
     }
 
     /**
@@ -34,6 +36,7 @@ public class World extends Thing {
         HashMap<Integer, Dock> docksHashMap = new HashMap<>();
         HashMap<Integer, Ship> shipsHashMap = new HashMap<>();
         HashMap<Integer, Person> personHashMap = new HashMap<>();
+        HashMap<Integer, Job> jobHashMap = new HashMap<>();
 
         while (file.hasNextLine()) {
 
@@ -66,6 +69,11 @@ public class World extends Thing {
                         Person person = new Person(sc);
                         addPerson(portsHashMap, person);
                         personHashMap.put(person.getIndex(), person);
+                        break;
+                    case "job":
+                        Job job = new Job(sc, program);
+                        addJob(shipsHashMap, job);
+                        jobHashMap.put(job.getIndex(), job);
                         break;
                 }
             }
@@ -120,6 +128,12 @@ public class World extends Thing {
         port.getPersons().add(person);
     }
 
+    private void addJob(HashMap <Integer, Ship> shipsHashMap, Job job) {
+        Ship ship = shipsHashMap.get(job.getParent());
+        (new Thread (job)).start();
+        ship.getJobs().add(job);
+    }
+
     /**
      * Getter method for the current <code>SeaPort</code> in the <code>World</code>
      * @return ArrayList of SeaPorts
@@ -146,7 +160,6 @@ public class World extends Thing {
 
     /**
      * Setter method for the current <code>PortTime</code>
-     * @return time
      */
     void setTime(PortTime time) {
         this.time = time;
@@ -171,6 +184,11 @@ public class World extends Thing {
             for (Ship ship : port.getShips()) {
                 if (ship.getIndex() == index) {
                     results.add(ship);
+                }
+                for (Job job : ship.getJobs()) {
+                    if (job.getIndex() == index) {
+                        results.add(job);
+                    }
                 }
             }
             for (Person person : port.getPersons()) {
@@ -202,6 +220,11 @@ public class World extends Thing {
             for (Ship ship : port.getShips()) {
                 if (ship.getName().equalsIgnoreCase(name)) {
                     results.add(ship);
+                }
+                for (Job job : ship.getJobs()) {
+                    if (job.getName().equalsIgnoreCase(name)) {
+                        results.add(job);
+                    }
                 }
             }
             for (Person person : port.getPersons()) {
@@ -254,6 +277,13 @@ public class World extends Thing {
             case "person":
                 for (SeaPort port : ports) {
                     results.addAll(port.getPersons());
+                }
+                break;
+            case "job":
+                for (SeaPort port : ports) {
+                    for (Ship ship : port.getShips()) {
+                        results.addAll(ship.getJobs());
+                    }
                 }
                 break;
         }

@@ -100,8 +100,10 @@ class SeaPort extends Thing {
     public String toString () {
         StringBuilder out = new StringBuilder("\nSeaPort: " + super.toString());
 
+        out.append("\n\n --- List of all docks:");
+
         for (Dock dock: docks) {
-            out.append("\n").append(dock);
+            out.append("\n   > ").append(dock);
         }
 
         out.append("\n\n --- List of all ships in que:");
