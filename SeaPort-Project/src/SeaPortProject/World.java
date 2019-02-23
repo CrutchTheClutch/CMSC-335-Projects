@@ -294,6 +294,7 @@ public class World extends Thing {
      * toString method
      * @return Formatted String of World
      */
+    @Override
     public String toString() {
         StringBuilder out = new StringBuilder("\n\n>>>>> World: ");
 

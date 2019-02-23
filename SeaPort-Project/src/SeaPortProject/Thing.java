@@ -87,6 +87,7 @@ public class Thing implements Comparable <Thing> {
      * a value less than 0 if <code>Thing</code> is less than <code>t</code>;
      * a value greater than 0 if <code>Thing</code> is greater than <code>t</code>.
      */
+    @Override
     public int compareTo(Thing t) {
         int indexCompare = Integer.compare(this.index, t.index);
         if (indexCompare != 0) {

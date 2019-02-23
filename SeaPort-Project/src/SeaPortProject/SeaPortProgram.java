@@ -25,31 +25,25 @@ import java.util.Scanner;
 public class SeaPortProgram extends JFrame {
 
     private World world;
+    private enum ErrorType {NO_FILE, NO_WORLD, MISSING_SEARCH_PARAM}
 
     // GUI Variables
-    private JPanel mainPanel = new JPanel();
-    private JComboBox <String> searchCombo = new JComboBox<>();
-    private JComboBox <String> sortCombo = new JComboBox<>();
-    private JComboBox <String> sortTargetCombo = new JComboBox<>();
-    private JTextField searchField = new JTextField ();
-
-    private JTextArea resultsTextArea = new JTextArea();
-    private JTextArea logTextArea = new JTextArea();
+    private JComboBox <String> searchCombo, sortCombo, sortTargetCombo;
+    private JTextField searchField;
     private JTree worldTree;
-
+    private JTextArea searchTextArea, logTextArea;
     private JTable jobsTable, resourcesTable;
-
-
 
     /**
      * Constructs the GUI and Action Listeners
      */
     private SeaPortProgram() {
+
         // Combo Items
         final String[] searchComboItems = {"Index", "Name", "Skill", "Type"};
         final String[] sortComboItems = {"Ports", "Docks", "Ships", "Queue", "People", "Jobs"};
 
-        // Sort Targets For Each type of Thing
+        // Sort Targets For Each sortComboItems
         final String[] seaPortSortTargets = {"name"};
         final String[] docksSortTargets = {"name"};
         final String[] allShipsSortTargets = {"name"};
@@ -58,192 +52,264 @@ public class SeaPortProgram extends JFrame {
         final String[] jobsSortTargets = {"name"};
 
         // All Sort Targets
-        final String[][] sortTargets = {seaPortSortTargets, docksSortTargets, allShipsSortTargets, queuedShipsSortTargets, peopleSortTargets, jobsSortTargets};
+        final String[][] sortTargets = {
+                seaPortSortTargets, docksSortTargets, allShipsSortTargets,
+                queuedShipsSortTargets, peopleSortTargets, jobsSortTargets
+        };
 
-        final String[] jobsTableTitles = {"Ship", "Name", "Status", "Progress", "", ""};
+        // JTable Header Titles
+        final String[] jobsTableTitles = {"Ship", "Name", "Status", "Progress", "Pause", "Cancel"};
+        final String[] resourcesTableTitles = {"This", "Is", "A", "Placeholder", "", ""};
 
-        // Preset Dimensions for each Component
-        final Dimension minimumFrameDimension = new Dimension(1125,619);
-        final Dimension comboBoxDimension = new Dimension(120, 25);
-        final Dimension txtFieldDimension = new Dimension(170, 25);
-        final Dimension btnDimension = new Dimension(95, 25);
-        final Dimension worldPaneDimension = new Dimension(239, 500);
-        final Dimension tabbedPaneDimension = new Dimension(835, 209);
+        // Preset Dimensions
+        final Dimension frameDimension = new Dimension(1125,619);
 
-        // Preset Font
-        final Font defaultFont = new Font ("Monospaced", Font.PLAIN, 12);
+        // Preset Fonts
+        Font monospaced = new Font ("Monospaced", Font.PLAIN, 12);
+
+        // Preset Insets
+        Insets componentInset = new Insets(2,5,3,5);
+        Insets panelInset = new Insets(0,0,0,0);
+
+        // GridBagConstraints Initial Settings
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = componentInset;
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.CENTER;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.gridy = 0;
+        c.gridheight = 1;
+        c.gridwidth = 1;
 
         // Create JPanels
-        JPanel optionsPanel = new JPanel();
-        JPanel filePanel = new JPanel();
-        JPanel searchPanel = new JPanel();
-        JPanel sortPanel = new JPanel();
+        JPanel optionsPanel = new JPanel();                     // UPPER UI - super Panel
+        JPanel filePanel = new JPanel();                        // UPPER UI - File Options
+        JPanel searchPanel = new JPanel();                      // UPPER UI - Search Options
+        JPanel sortPanel = new JPanel();                        // UPPER UI - Sort Options
+        JPanel viewPanel = new JPanel();                        // MAIN UI - super Panel
+        JPanel treePanel = new JPanel();                        // MAIN UI - Tree View
+        JPanel treeOptPanel = new JPanel();                     // MAIN UI - Tree View Options
+        JPanel logPanel = new JPanel();                         // MAIN UI - Log/Job View
 
-        JPanel viewPanel = new JPanel();
-
-        // Create TextAreas
-        JTextArea worldTextArea = new JTextArea();
-
-        // Create Buttons
-        JButton readBtn = new JButton ("Read");
-        JButton displayBtn = new JButton ("Display");
-        JButton searchBtn = new JButton ("Search");
-        JButton sortBtn = new JButton ("Sort");
-        JButton clearBtn = new JButton("Clear");
-
-        // Create JTree
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("SeaPorts");
-        worldTree = new JTree(root);
-
-        // Create JTables
-        DefaultTableModel jobsTableModel = new DefaultTableModel(jobsTableTitles, 0);
-        jobsTable = new JTable(jobsTableModel);
-        TableCellRenderer ProgressBarRenderer = new ProgressCellRenderer();
-        jobsTable.getColumn("Progress").setCellRenderer(ProgressBarRenderer);
-
-        // Create Scroll Panes
-        JScrollPane worldScrollPane = new JScrollPane(worldTree);
-        JScrollPane resultsScrollPane = new JScrollPane(resultsTextArea);
-        JScrollPane logScrollPane = new JScrollPane(logTextArea);
-        JScrollPane jobsScrollPane = new JScrollPane(jobsTable);
-        JScrollPane resourcesScrollPane = new JScrollPane(resourcesTable);
-
-        // Create JTabbed Panes
-        JTabbedPane textTabbedPane = new JTabbedPane();
-        textTabbedPane.add("Log", logScrollPane);
-        textTabbedPane.add("Search Results", resultsScrollPane);
-
-        JTabbedPane tablesTabbedPane = new JTabbedPane();
-        tablesTabbedPane.add("Jobs", jobsScrollPane);
-        tablesTabbedPane.add("Resources", resourcesScrollPane);
-
-        // Create JSplit Panes
-        JSplitPane jobsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textTabbedPane, tablesTabbedPane);
-        JSplitPane worldSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, worldScrollPane, jobsSplitPane);
-
-        // Create Carets
-        DefaultCaret logCaret = (DefaultCaret) logTextArea.getCaret();
-        DefaultCaret searchCaret = (DefaultCaret) logTextArea.getCaret();
-
-        // JFrame Settings
-        setTitle("SeaPort Program");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(minimumFrameDimension);
-        setLocationRelativeTo(null);
-        setMinimumSize(minimumFrameDimension);
-        setVisible(true);
-        setLayout(new BorderLayout(0,0));
-
+        // region UPPER UI Construction
+        // Set Layouts
+        optionsPanel.setLayout(new GridBagLayout());
+        filePanel.setLayout(new GridBagLayout());
+        searchPanel.setLayout(new GridBagLayout());
+        sortPanel.setLayout(new GridBagLayout());
 
         // Set Panel Borders
         filePanel.setBorder(new TitledBorder("File"));
         searchPanel.setBorder(new TitledBorder("Search"));
         sortPanel.setBorder(new TitledBorder("Sort"));
 
-        // Set Panel Layouts
-        optionsPanel.setLayout(new BorderLayout(0,0));
-        viewPanel.setLayout(new BorderLayout(0,0));
+        // Create Components
+        JButton readBtn = new JButton("Read");             // File Options - Read Button
+        JButton displayBtn = new JButton("Display");       // File Options - Display Button
+        JButton clearBtn = new JButton("Clear");           // File Options - Clear Button
+        searchField = new JTextField ();                        // Search Options - Search Field
+        searchCombo = new JComboBox<>();                        // Search Options - Search Combo
+        JButton searchBtn = new JButton("Search");         // Search Options - Search Button
+        sortTargetCombo = new JComboBox<>();                    // Sort Options - Sort Target (Thing) Combo
+        sortCombo = new JComboBox<>();                          // Sort Options - Sort Combo
+        JButton sortBtn = new JButton("Sort");             // Sort Options - Sort Button
 
-        // Set Scroll Pane Borders
-        worldScrollPane.setBorder(new TitledBorder("World"));
-
-        // Set JTables Borders
-        jobsTable.setBorder(null);
-
-        // Set Button Sizes
-        readBtn.setPreferredSize(btnDimension);
-        displayBtn.setPreferredSize(btnDimension);
-        clearBtn.setPreferredSize(btnDimension);
-        searchBtn.setPreferredSize(btnDimension);
-        sortBtn.setPreferredSize(btnDimension);
-
-        // Set Text Field Sizes
-        searchField.setPreferredSize(txtFieldDimension);
+        // Set Fonts
+        searchField.setFont(monospaced);
 
         // searchCombo Settings
         searchCombo.setEditable(false);
-        searchCombo.setPreferredSize(comboBoxDimension);
-        // Populates searchCombo
         for (String item : searchComboItems) {
-            searchCombo.addItem (item);
+            searchCombo.addItem (item);                         // Populates searchCombo ComboBox
         }
         searchCombo.setSelectedIndex(0);
 
         // sortCombo Settings
         sortCombo.setEditable(false);
-        sortCombo.setPreferredSize(comboBoxDimension);
-        // Populates sortCombo
         for (String item : sortComboItems) {
-            sortCombo.addItem (item);
+            sortCombo.addItem (item);                           // Populates sortCombo ComboBox
         }
         sortCombo.setSelectedIndex(0);
 
         // sortTargetCombo Settings
         sortTargetCombo.setEditable(false);
-        sortTargetCombo.setPreferredSize(comboBoxDimension);
-        // Populates sortParamCombo
         for (String item : sortTargets[0]) {
-            sortTargetCombo.addItem(item);
+            sortTargetCombo.addItem(item);                      // Populates sortParamCombo ComboBox
         }
 
-        // worldTextArea Settings
-        worldTextArea.setFont(defaultFont);
-        worldTextArea.setEditable(false);
-
-        // searchTextArea Settings
-        resultsTextArea.setFont(defaultFont);
-        resultsTextArea.setEditable(false);
-        searchCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
-        // logTextArea Settings
-        logTextArea.setFont(defaultFont);
-        logTextArea.setEditable(false);
-        logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
-        // jobsTable Settings
-        jobsTable.setFont(defaultFont);
-
-        // Set Scroll Panes Sizes
-        worldScrollPane.setPreferredSize(worldPaneDimension);
-        resultsScrollPane.setPreferredSize(tabbedPaneDimension);
-        logScrollPane.setPreferredSize(tabbedPaneDimension);
-        jobsScrollPane.setPreferredSize(tabbedPaneDimension);
-        resourcesScrollPane.setPreferredSize(tabbedPaneDimension);
-
-        // JSplit Pane Settings
-        jobsSplitPane.setBorder(null);
-        worldSplitPane.setBorder(new EtchedBorder());
-        worldSplitPane.setDividerSize(12);
-
         // Add filePanel Components
-        filePanel.add(readBtn);
-        filePanel.add(displayBtn);
-        filePanel.add(clearBtn);
+        c.gridx = 0;
+        filePanel.add(readBtn, c);
+        c.gridx = 1;
+        filePanel.add(displayBtn, c);
+        c.gridx = 2;
+        filePanel.add(clearBtn, c);
 
         // Add searchPanel Components
-        searchPanel.add(searchField);
-        searchPanel.add(searchCombo);
-        searchPanel.add(searchBtn);
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.weightx = 2;
+        searchPanel.add(searchField, c);
+        c.gridx = 2;
+        c.gridwidth = 1;
+        c.weightx = 1;
+        searchPanel.add(searchCombo, c);
+        c.gridx = 3;
+        searchPanel.add(searchBtn, c);
 
         // Add sortPanel Components
-        sortPanel.add(sortCombo);
-        sortPanel.add(sortTargetCombo);
-        sortPanel.add(sortBtn);
+        c.gridx = 0;
+        sortPanel.add(sortCombo, c);
+        c.gridx = 1;
+        sortPanel.add(sortTargetCombo, c);
+        c.gridx = 2;
+        sortPanel.add(sortBtn, c);
 
         // Add Panels to optionsPanel
-        optionsPanel.add(filePanel, BorderLayout.WEST);
-        optionsPanel.add(searchPanel, BorderLayout.CENTER);
-        optionsPanel.add(sortPanel, BorderLayout.EAST);
+        c.insets = panelInset;
+        c.gridx = 0;
+        optionsPanel.add(filePanel, c);
+        c.gridx = 1;
+        c.gridwidth = 2;
+        c.weightx = 2;
+        optionsPanel.add(searchPanel, c);
+        c.gridx = 3;
+        c.gridwidth = 1;
+        c.weightx = 1;
+        optionsPanel.add(sortPanel, c);
+        //endregion
+
+        // region MAIN UI Construction
+        // Set Layouts
+        viewPanel.setLayout(new BorderLayout(0,0));
+        treePanel.setLayout(new BorderLayout(0,0));
+        treeOptPanel.setLayout(new GridBagLayout());
+        logPanel.setLayout(new BorderLayout(0,0));
+
+        // Set Panel Borders
+        viewPanel.setBorder(null);
+        treePanel.setBorder(new EtchedBorder());
+        logPanel.setBorder(new EtchedBorder());
+
+        // Set Table Models
+        DefaultTableModel jobsTableModel = new DefaultTableModel(jobsTableTitles, 0) {
+            public boolean isCellEditable(int row, int col){
+                switch (col) {
+                    case 4:
+                    case 5:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        };
+        DefaultTableModel resourcesTableModel = new DefaultTableModel(resourcesTableTitles, 0);
+
+        // Create Components
+        worldTree = new JTree(new DefaultMutableTreeNode("SeaPorts"));    // Tree View - World Tree
+        JButton expandBtn = new JButton("Expand All");                         // Tree View - Expand All Button
+        JButton collapseBtn = new JButton("Collapse All");                     // Tree View - Collapse All Button
+        logTextArea = new JTextArea();                                              // Log View - Log TextArea
+        searchTextArea = new JTextArea();                                           // Log View - Search Results
+        jobsTable = new JTable(jobsTableModel);                                     // Job View - Jobs Table
+        resourcesTable = new JTable(resourcesTableModel);                           // Job View - Resources Table
+
+        // Create Scroll Panes
+        JScrollPane treeScrollPane = new JScrollPane(worldTree);                    // Tree View - Scroll Pane
+        JScrollPane logScrollPane = new JScrollPane(logTextArea);                   // Log View - Log Scroll Pane
+        JScrollPane searchScrollPane = new JScrollPane(searchTextArea);             // Log View - Search Scroll Pane
+        JScrollPane jobsScrollPane = new JScrollPane(jobsTable);                    // Job View - Jobs Scroll Pane
+        JScrollPane resourcesScrollPane = new JScrollPane(resourcesTable);          // Job View - Resources Scroll Pane
+
+        // Create JTabbed Panes
+        JTabbedPane logsTabbedPane = new JTabbedPane();                             // Log View - Log Tabbed Pane
+        logsTabbedPane.add("Log", logScrollPane);                              // Log View - Log Tab
+        logsTabbedPane.add("Search Results", searchScrollPane);                // Log View - Search Results Tab
+        JTabbedPane tablesTabbedPane = new JTabbedPane();                           // Job View - Tables Tabbed Pane
+        tablesTabbedPane.add("Jobs", jobsScrollPane);                          // Job View - Job Tab
+        tablesTabbedPane.add("Resources", resourcesScrollPane);                // Job View - Resources Tab
+
+        // Create JSplit Panes
+        JSplitPane logsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logsTabbedPane, tablesTabbedPane);
+        JSplitPane mainUISplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePanel, logPanel);
+
+        // Create Carets
+        DefaultCaret logCaret = (DefaultCaret) logTextArea.getCaret();
+        DefaultCaret searchCaret = (DefaultCaret) searchTextArea.getCaret();
+
+        // Set Fonts
+        worldTree.setFont(monospaced);
+        logTextArea.setFont(monospaced);
+        searchTextArea.setFont(monospaced);
+        jobsTable.setFont(monospaced);
+        resourcesTable.setFont(monospaced);
+
+        // Set Component Borders
+        treeScrollPane.setBorder(new TitledBorder("World"));
+        jobsTable.setBorder(null);
+        resourcesTable.setBorder(null);
+        logsSplitPane.setBorder(null);
+        mainUISplitPane.setBorder(new EtchedBorder());
+
+        // Set Carets
+        logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        searchCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        // Set TableCellRenderer
+        TableCellRenderer PanelCellRenderer = new PanelCellRenderer();
+        jobsTable.getColumn("Status").setCellRenderer(PanelCellRenderer);
+        jobsTable.getColumn("Progress").setCellRenderer(PanelCellRenderer);
+        jobsTable.getColumn("Pause").setCellRenderer(PanelCellRenderer);
+        jobsTable.getColumn("Cancel").setCellRenderer(PanelCellRenderer);
+
+        // Set TableCellEditor
+        jobsTable.isCellEditable(0,4);
+        jobsTable.isCellEditable(0,5);
+        jobsTable.getColumn("Pause").setCellEditor(new PanelCellEditor());
+        jobsTable.getColumn("Cancel").setCellEditor(new PanelCellEditor());
+
+        // JTable Settings
+        jobsTable.setRowHeight(25);
+
+        // JSplit Pane Settings
+        logsSplitPane.setResizeWeight(0.5);
+        mainUISplitPane.setDividerSize(12);
+
+        // TextArea Settings
+        searchTextArea.setEditable(false);
+        logTextArea.setEditable(false);
+
+        // Add treeOptPanel Components
+        c.insets = componentInset;
+        c.gridx = 0;
+        treeOptPanel.add(expandBtn, c);
+        c.gridx = 1;
+        treeOptPanel.add(collapseBtn, c);
+
+        // Add treePanel Components
+        treePanel.add(treeScrollPane, BorderLayout.CENTER);
+        treePanel.add(treeOptPanel, BorderLayout.SOUTH);
+
+        // Add logPanel Components
+        logPanel.add(logsSplitPane, BorderLayout.CENTER);
 
         // Add Panels to viewPanel
-        viewPanel.add(worldSplitPane, BorderLayout.CENTER);
+        viewPanel.add(mainUISplitPane, BorderLayout.CENTER);
+        //endregion
 
-        // Add Panels to mainPanel
-        mainPanel.add(optionsPanel, BorderLayout.NORTH);
-        mainPanel.add(viewPanel, BorderLayout.CENTER);
+        // JFrame Settings
+        setTitle("SeaPort Program");
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setSize(frameDimension);
+        setMinimumSize(frameDimension);
+        setLayout(new BorderLayout(0,0));
+        setLocationRelativeTo(null);
+        setVisible(true);
 
-        // Add mainPanel to JFrame
-        add(mainPanel);
+        // Add Panels to JFrame
+        add(optionsPanel, BorderLayout.PAGE_START);
+        add(viewPanel, BorderLayout.CENTER);
 
         validate ();
 
@@ -252,7 +318,7 @@ public class SeaPortProgram extends JFrame {
         displayBtn.addActionListener (e -> display());
         clearBtn.addActionListener (e -> {
             logTextArea.setText("");
-            resultsTextArea.setText("");
+            searchTextArea.setText("");
         });
         searchBtn.addActionListener(e -> search());
         sortCombo.addActionListener(e -> {
@@ -263,6 +329,8 @@ public class SeaPortProgram extends JFrame {
             validate();
         });
         sortBtn.addActionListener(e -> sort());
+        expandBtn.addActionListener(e -> expandTree());
+        collapseBtn.addActionListener(e -> collapseTree());
     }
 
     /**
@@ -276,22 +344,19 @@ public class SeaPortProgram extends JFrame {
 
         Scanner sc;
 
-        updateLog("Read File Initialized");
-
         try {
             sc = new Scanner(jFileChooser.getSelectedFile());
         } catch (FileNotFoundException | NullPointerException e) {
-            noFileMessageDialog();
+            displayError(ErrorType.NO_FILE);
             updateLog("Read File Failed - No File Found");
             return;
         }
 
         updateLog("Read File Success");
 
-        world = new World(sc, this);
-        updateLog("World Processing");
+        world = new World(sc, jobsTable);
         world.process(sc);
-        updateLog("World Processed");
+        updateLog("World Process Success");
 
         display();
     }
@@ -300,10 +365,8 @@ public class SeaPortProgram extends JFrame {
      * Displays All Data from the currently loaded text file
      */
     private void display() {
-        updateLog("Display Update Initialized");
-
         if (world == null) {
-            noWorldMessageDialog();
+            displayError(ErrorType.NO_WORLD);
             updateLog("Display Update Failed - No World Found");
             return;
         }
@@ -345,12 +408,6 @@ public class SeaPortProgram extends JFrame {
                 // Adds Ship Node to Dock
                 DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode("Ship: " + dock.getShip().getName());
                 dockNode.add(shipNode);
-
-                // Adds Job Nodes to Docked Ship
-                for (Job job : dock.getShip().getJobs()) {
-                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
-                    shipNode.add(jobNode);
-                }
             }
 
             // All Ships Node
@@ -371,11 +428,6 @@ public class SeaPortProgram extends JFrame {
                 // Adds Ship Nodes to Queue
                 DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode("Ship: " + ship.getName());
                 queue.add(shipNode);
-                // Adds Job Nodes to Queued Ship
-                for (Job job : ship.getJobs()) {
-                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
-                    shipNode.add(jobNode);
-                }
             }
 
             // All Persons Node
@@ -386,18 +438,6 @@ public class SeaPortProgram extends JFrame {
                 // Adds Person Nodes to All Persons
                 DefaultMutableTreeNode personNode = new DefaultMutableTreeNode(person.getName());
                 persons.add(personNode);
-            }
-
-            // All Ships Node
-            DefaultMutableTreeNode jobs = new DefaultMutableTreeNode("Jobs");
-            portNode.add(jobs);
-
-            for (Ship ship : port.getShips()) {
-                for (Job job : ship.getJobs()) {
-                    // Adds Ship Nodes to All Ships
-                    DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job.getName());
-                    jobs.add(jobNode);
-                }
             }
         }
 
@@ -414,7 +454,8 @@ public class SeaPortProgram extends JFrame {
         for (SeaPort port : world.getPorts()) {
             for (Ship ship : port.getShips()) {
                 for (Job job : ship.getJobs()) {
-                    jobsTableModel.addRow(new Object[]{ship.getName(), job.getName(), job.getStatus(), job.getProgressBar()});
+                    jobsTableModel.addRow(new Object[]{ship.getName(), job.getName(), job.getStatusPanel(),
+                            job.getProgressPanel(), job.getSuspendPanel(), job.getCancelPanel()});
                 }
             }
         }
@@ -427,16 +468,14 @@ public class SeaPortProgram extends JFrame {
         String comboSelectedItem = String.valueOf(searchCombo.getSelectedItem());
         String fieldText = searchField.getText();
 
-        updateLog("World Search Initialized");
-
         if (world == null) {
-            noWorldMessageDialog();
+            displayError(ErrorType.NO_WORLD);
             updateLog("World Search Failed - No World Found");
             return;
         }
 
         if (comboSelectedItem == null || fieldText.equals("")) {
-            searchErrorMessageDialog();
+            displayError(ErrorType.MISSING_SEARCH_PARAM);
             updateLog("World Search Failed - Incorrect Search Parameters");
             return;
         }
@@ -469,10 +508,9 @@ public class SeaPortProgram extends JFrame {
         }
 
         updateLog("World Search - Type: " + type);
+        updateLog("World Search - Target: " + target);
 
-        resultsTextArea.append(searchResultsToString(results, type + " - " + target));
-
-        updateLog("World Search Success");
+        searchTextArea.append(searchResultsToString(results, type + " - " + target));
     }
 
     /**
@@ -484,9 +522,11 @@ public class SeaPortProgram extends JFrame {
         StringBuilder out = new StringBuilder("Search Results: " + params);
         if (results.isEmpty()) {
             out.append("\n    NO RESULTS FOUND");
+            updateLog("World Search - NO RESULTS FOUND");
         } else {
             for (Thing thing : results) {
                 out.append("\n    ").append(thing);
+                updateLog("World Search - " + results.size() + " RESULTS FOUND");
             }
         }
         out.append("\n\n");
@@ -501,10 +541,8 @@ public class SeaPortProgram extends JFrame {
         String sortComboItem = String.valueOf(sortCombo.getSelectedItem());
         String target = String.valueOf(sortTargetCombo.getSelectedItem());
 
-        updateLog("World Sort Initialized");
-
         if (world == null) {
-            noWorldMessageDialog();
+            displayError(ErrorType.NO_WORLD);
             updateLog("World Sort Failed - No World Found");
             return;
         }
@@ -543,40 +581,59 @@ public class SeaPortProgram extends JFrame {
         }
 
         updateLog("World Sort - Type: " + sortComboItem);
-
-        updateLog("World Sort Success");
+        updateLog("World Sort - Target: " + target);
 
         display();
     }
 
     /**
-     * Displays an Error message that no file was loaded
+     *
      */
-    private void noFileMessageDialog() {
-        JOptionPane.showMessageDialog(mainPanel,
-                "A file was not selected.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+    private void expandTree() {
+        if (world == null) {
+            displayError(ErrorType.NO_WORLD);
+            updateLog("Tree Expand Failed - No World Found");
+            return;
+        }
+
+        for (int i = 1; i < worldTree.getRowCount(); i++) {
+            worldTree.expandRow(i);
+        }
+
+        updateLog("Tree Expand Success");
     }
 
     /**
-     * Displays an Error message that no world was loaded
+     *
      */
-    private void noWorldMessageDialog() {
-        JOptionPane.showMessageDialog(mainPanel,
-                "A world is not loaded.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+    private void collapseTree() {
+        if (world == null) {
+            displayError(ErrorType.NO_WORLD);
+            updateLog("Tree Collapse Failed - No World Found");
+            return;
+        }
+
+        for (int i = 1; i < worldTree.getRowCount(); i++) {
+            worldTree.collapseRow(i);
+        }
+
+        updateLog("Tree Collapse Success");
     }
 
-    /**
-     * Displays an Error message that search parameters are incorrect
-     */
-    private void searchErrorMessageDialog() {
-        JOptionPane.showMessageDialog(mainPanel,
-                "Please ensure that all search fields are filled out.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+    private void displayError(ErrorType type) {
+        String msg = "Error";
+        switch(type) {
+            case NO_FILE:
+                msg = "A file was not selected.";
+                break;
+            case NO_WORLD:
+                msg = "A World is not loaded.";
+                break;
+            case MISSING_SEARCH_PARAM:
+                msg = "Ensure that all search fields are filled.";
+                break;
+        }
+        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -586,14 +643,6 @@ public class SeaPortProgram extends JFrame {
     void updateLog(String logMessage) {
         String currentTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(new Date().getTime());
         logTextArea.append(currentTime + " | " + logMessage + "\n");
-    }
-
-    /**
-     *
-     * @return
-     */
-    JTable getJobsTable() {
-        return jobsTable;
     }
 
     /**

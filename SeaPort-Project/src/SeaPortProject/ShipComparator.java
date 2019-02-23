@@ -40,6 +40,7 @@ public class ShipComparator implements Comparator<Ship> {
      * a value less than 0 if ship1's target is less than ship2's target;
      * a value greater than 0 if ship1's target is greater than ship2's target.
      */
+    @Override
     public int compare(Ship ship1, Ship ship2) {
         switch(target) {
             case "weight":

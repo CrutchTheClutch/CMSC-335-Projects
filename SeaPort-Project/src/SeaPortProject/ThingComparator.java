@@ -38,6 +38,7 @@ public class ThingComparator implements Comparator<Thing> {
      * a value less than 0 if thing1's target is less than thing2's target;
      * a value greater than 0 if thing1's target is greater than thing2's target.
      */
+    @Override
     public int compare(Thing thing1, Thing thing2) {
         switch(target) {
             case "index":
