@@ -1,5 +1,6 @@
 package SeaPortProject;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -17,9 +18,11 @@ class PassengerShip extends Ship {
     /**
      * Constructs the PassengerShip Object
      * @param sc a file Scanner of the current text file
+     * @param portsHashMap
+     * @param docksHashMap
      */
-    PassengerShip(Scanner sc) {
-        super(sc);
+    PassengerShip(Scanner sc, HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap) {
+        super(sc, portsHashMap, docksHashMap);
         if (sc.hasNextInt()) numberOfPassengers = sc.nextInt();
         if (sc.hasNextInt()) numberOfRooms = sc.nextInt();
         if (sc.hasNextInt()) numberOfOccupiedRooms = sc.nextInt();

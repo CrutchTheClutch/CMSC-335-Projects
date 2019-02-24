@@ -1,6 +1,7 @@
 package SeaPortProject;
 
 import java.util.Scanner;
+import java.util.HashMap;
 
 /**
  * Filename :   CargoShip
@@ -18,8 +19,8 @@ class CargoShip extends Ship {
      * Constructs the CargoShip Object
      * @param sc a file Scanner of the current text file
      */
-    CargoShip(Scanner sc) {
-        super(sc);
+    CargoShip(Scanner sc, HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap) {
+        super(sc, portsHashMap, docksHashMap);
         if (sc.hasNextDouble()) cargoWeight = sc.nextDouble();
         if (sc.hasNextDouble()) cargoVolume = sc.nextDouble();
         if (sc.hasNextDouble()) cargoValue = sc.nextDouble();

@@ -5,7 +5,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultCaret;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -58,7 +57,6 @@ public class SeaPortProgram extends JFrame {
         };
 
         // JTable Header Titles
-        final String[] jobsTableTitles = {"Ship", "Name", "Status", "Progress", "Pause", "Cancel"};
         final String[] resourcesTableTitles = {"This", "Is", "A", "Placeholder", "", ""};
 
         // Preset Dimensions
@@ -193,17 +191,7 @@ public class SeaPortProgram extends JFrame {
         logPanel.setBorder(new EtchedBorder());
 
         // Set Table Models
-        DefaultTableModel jobsTableModel = new DefaultTableModel(jobsTableTitles, 0) {
-            public boolean isCellEditable(int row, int col){
-                switch (col) {
-                    case 4:
-                    case 5:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        };
+        DefaultTableModel jobsTableModel = new JobsTableModel();
         DefaultTableModel resourcesTableModel = new DefaultTableModel(resourcesTableTitles, 0);
 
         // Create Components
@@ -256,20 +244,10 @@ public class SeaPortProgram extends JFrame {
         logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         searchCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-        // Set TableCellRenderer
-        TableCellRenderer PanelCellRenderer = new PanelCellRenderer();
-        jobsTable.getColumn("Status").setCellRenderer(PanelCellRenderer);
-        jobsTable.getColumn("Progress").setCellRenderer(PanelCellRenderer);
-        jobsTable.getColumn("Pause").setCellRenderer(PanelCellRenderer);
-        jobsTable.getColumn("Cancel").setCellRenderer(PanelCellRenderer);
-
-        // Set TableCellEditor
-        jobsTable.isCellEditable(0,4);
-        jobsTable.isCellEditable(0,5);
-        jobsTable.getColumn("Pause").setCellEditor(new PanelCellEditor());
-        jobsTable.getColumn("Cancel").setCellEditor(new PanelCellEditor());
-
-        // JTable Settings
+        // jobsTable Settings
+        jobsTable.setDefaultRenderer(Component.class, new PanelCellRenderer());
+        jobsTable.setDefaultEditor(Component.class, new PanelCellEditor());
+        jobsTable.getTableHeader().setReorderingAllowed(false);
         jobsTable.setRowHeight(25);
 
         // JSplit Pane Settings
@@ -316,10 +294,7 @@ public class SeaPortProgram extends JFrame {
         // Action Listeners
         readBtn.addActionListener (e -> readFile());
         displayBtn.addActionListener (e -> display());
-        clearBtn.addActionListener (e -> {
-            logTextArea.setText("");
-            searchTextArea.setText("");
-        });
+        clearBtn.addActionListener (e -> clear());
         searchBtn.addActionListener(e -> search());
         sortCombo.addActionListener(e -> {
             sortTargetCombo.removeAllItems();
@@ -354,11 +329,38 @@ public class SeaPortProgram extends JFrame {
 
         updateLog("Read File Success");
 
-        world = new World(sc, jobsTable);
+        world = new World(sc, this, jobsTable);
         world.process(sc);
         updateLog("World Process Success");
 
+        startAllJobs();
+
         display();
+    }
+
+    private void startAllJobs() {
+        for (SeaPort port : world.getPorts()) {
+            for (Dock dock : port.getDocks()) {
+                if (dock.getShip().getJobs().isEmpty()) {
+                    updateLog("Ship " + dock.getShip().getName() + " Departed from " + dock.getName());
+                    dock.setShip(null);
+                    while (!port.getQueue().isEmpty()) {
+                        Ship ship = port.getQueue().remove(0);
+                        if (!ship.getJobs().isEmpty()) {
+                            dock.setShip(ship);
+                            ship.setDock(dock);
+                            updateLog("Ship " + ship.getName() + " Arrived at " + dock.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+            for (Ship ship : port.getShips()) {
+                for (Job job : ship.getJobs()) {
+                    job.startJob();
+                }
+            }
+        }
     }
 
     /**
@@ -406,7 +408,17 @@ public class SeaPortProgram extends JFrame {
                 docks.add(dockNode);
 
                 // Adds Ship Node to Dock
-                DefaultMutableTreeNode shipNode = new DefaultMutableTreeNode("Ship: " + dock.getShip().getName());
+                DefaultMutableTreeNode shipNode;
+                if (dock.getShip() == null) {
+                    shipNode = new DefaultMutableTreeNode(null);
+                } else {
+                    shipNode = new DefaultMutableTreeNode("Ship: " + dock.getShip().getName());
+                    // Adds Job Node to Ship
+                    for (Job jobs : dock.getShip().getJobs()) {
+                        DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode("Job: " + jobs.getName());
+                        shipNode.add(jobNode);
+                    }
+                }
                 dockNode.add(shipNode);
             }
 
@@ -459,6 +471,12 @@ public class SeaPortProgram extends JFrame {
                 }
             }
         }
+    }
+
+    private void clear() {
+        logTextArea.setText("");
+        searchTextArea.setText("");
+        updateJobDisplay();
     }
 
     /**
