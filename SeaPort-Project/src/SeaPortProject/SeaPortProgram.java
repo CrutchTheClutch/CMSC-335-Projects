@@ -16,10 +16,16 @@ import java.util.Date;
 import java.util.Scanner;
 
 /**
- * Filename :   SeaPortProgram
- * Author :     William Crutchfield
- * Date:        1/25/2019
- * Purpose:     Builds the GUI, and handles ActionListeners for the various GUI Components
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code SeaPortProgram} <br>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br>
+ * <strong>Date Created:</strong> &emsp; January 25th, 2019 <br>
+ * <br> <p>
+ * {@code SeaPortProgram} is the base class for the entire {@link SeaPortProject}.  It's main responsibilities
+ * involve constructing the GUI, ActionListeners, and building the {@link World} object.  The {@code SeaPortProgram}
+ * will only build the {@link World} object from a text file, after it has been read in.
+ *
+ * @author William Crutchfield
+ * @see World
  */
 public class SeaPortProgram extends JFrame {
 
@@ -34,7 +40,7 @@ public class SeaPortProgram extends JFrame {
     private JTable jobsTable, resourcesTable;
 
     /**
-     * Constructs the GUI and Action Listeners
+     * Default Constructor for {@code SeaPortProgram}.
      */
     private SeaPortProgram() {
 
@@ -309,7 +315,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Reads in the selected text file from the jFileChooser
+     * Reads a text file into {@code SeaPortProgram}, then builds the {@link World} object with the data.
      */
     private void readFile() {
         JFileChooser jFileChooser = new JFileChooser(".");
