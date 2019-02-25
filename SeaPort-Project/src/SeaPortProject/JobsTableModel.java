@@ -4,6 +4,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+/**
+ * Filename :   JobsTableModel
+ * Author :     William Crutchfield
+ * Date:        2/21/2019
+ * Description: Custom TableModel for the JTable jobsTable
+ */
 public class JobsTableModel extends DefaultTableModel implements TableModel {
     private static final String[] COLUMN_NAMES = {"Ship", "Name", "Status", "Progress", "Pause", "Cancel"};
 

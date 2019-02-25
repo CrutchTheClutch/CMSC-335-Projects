@@ -329,7 +329,7 @@ public class SeaPortProgram extends JFrame {
 
         updateLog("Read File Success");
 
-        world = new World(sc, this, jobsTable);
+        world = new World(sc, this);
         world.process(sc);
         updateLog("World Process Success");
 
@@ -357,7 +357,7 @@ public class SeaPortProgram extends JFrame {
             }
             for (Ship ship : port.getShips()) {
                 for (Job job : ship.getJobs()) {
-                    job.startJob();
+                    job.getThread().start();
                 }
             }
         }
@@ -661,6 +661,10 @@ public class SeaPortProgram extends JFrame {
     void updateLog(String logMessage) {
         String currentTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(new Date().getTime());
         logTextArea.append(currentTime + " | " + logMessage + "\n");
+    }
+
+    JTable getjobsTable() {
+        return jobsTable;
     }
 
     /**

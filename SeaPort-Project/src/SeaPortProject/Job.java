@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -13,7 +11,7 @@ import java.util.Scanner;
  * Filename :   Job
  * Author :     William Crutchfield
  * Date:        2/18/2019
- * Description:
+ * Description: Creates and Runs Jobs on separate Threads
  */
 class Job extends Thing implements Runnable {
 
@@ -40,15 +38,14 @@ class Job extends Thing implements Runnable {
     private JLabel statusLabel;
     private JProgressBar progressBar;
 
-    Job(Scanner sc, SeaPortProgram program, HashMap<Integer, Ship> shipsHashMap, JTable jobsTable) {
+    Job(Scanner sc, SeaPortProgram program, HashMap<Integer, Ship> shipsHashMap) {
 
         super(sc);
         if (sc.hasNextDouble()) duration = sc.nextDouble();
 
-        this.jobsTable = jobsTable;
-        jobsTableModel = (DefaultTableModel) jobsTable.getModel();
-
         this.program = program;
+        jobsTable = program.getjobsTable();
+        jobsTableModel = (DefaultTableModel) jobsTable.getModel();
 
         ship = shipsHashMap.get(this.getParent());
         port = ship.getPort();
@@ -143,8 +140,8 @@ class Job extends Thing implements Runnable {
         return cancelPanel;
     }
 
-    void startJob() {
-        thread.start();
+    Thread getThread() {
+        return thread;
     }
 
     @Override
@@ -161,6 +158,7 @@ class Job extends Thing implements Runnable {
                 } catch (InterruptedException ignored) {}
             }
             ship.setIsBusy(true);
+            program.updateLog(this.getName() + " has Started");
         }
 
         while (startTime < stopTime && !isCanceled) {
@@ -178,7 +176,13 @@ class Job extends Thing implements Runnable {
             jobsTable.tableChanged(new TableModelEvent(jobsTableModel));
         }
 
-        endJob();
+        if (isCanceled && status != Status.DONE) {
+            setStatus(Status.CANCELLED);
+        } else {
+            setStatus(Status.DONE);
+        }
+
+        isFinished = true;
 
         synchronized (port) {
             ship.setIsBusy(false);
@@ -201,15 +205,6 @@ class Job extends Thing implements Runnable {
                 }
             }
         }
-    }
-
-    private void endJob() {
-        if (isCanceled && status != Status.DONE) {
-            setStatus(Status.CANCELLED);
-        } else {
-            setStatus(Status.DONE);
-        }
-        isFinished = true;
     }
 
     public String toString() {

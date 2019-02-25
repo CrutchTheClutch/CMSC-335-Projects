@@ -16,17 +16,15 @@ public class World extends Thing {
     private SeaPortProgram program;
     private ArrayList <SeaPort> ports;
     private PortTime time;
-    private JTable jobsTable;
 
     /**
      * Constructs the World Object
      * @param sc a file Scanner of the current text file
      */
-    World(Scanner sc, SeaPortProgram program, JTable jobsTable) {
+    World(Scanner sc, SeaPortProgram program) {
         super(sc);
         this.program = program;
         ports = new ArrayList<>();
-        this.jobsTable = jobsTable;
     }
 
     /**
@@ -69,7 +67,7 @@ public class World extends Thing {
                         addPerson(portsHashMap, personsHashMap, person);
                         break;
                     case "job":
-                        Job job = new Job(sc, program, shipsHashMap, jobsTable);
+                        Job job = new Job(sc, program, shipsHashMap);
                         addJob(shipsHashMap, jobsHashMap, job);
                         break;
                 }
