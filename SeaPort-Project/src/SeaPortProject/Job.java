@@ -187,17 +187,17 @@ class Job extends Thing implements Runnable {
                     port.notifyAll();
                     return;
                 }
-                while (!port.getQueue().isEmpty()) {
-                    Ship newShip = port.getQueue().remove(0);
-                    if (!newShip.getJobs().isEmpty()) {
-                        program.updateLog("Ship " + ship.getName() + " Departed from " + ship.getDock().getName());
-                        Dock dock = ship.getDock();
-                        dock.setShip(newShip);
-                        newShip.setDock(dock);
-                        program.updateLog("Ship " + newShip.getName() + " Arrived at " + dock.getName());
-                        port.notifyAll();
-                        return;
-                    }
+            }
+            while (!port.getQueue().isEmpty()) {
+                Ship newShip = port.getQueue().remove(0);
+                if (!newShip.getJobs().isEmpty()) {
+                    program.updateLog("Ship " + ship.getName() + " Departed from " + ship.getDock().getName());
+                    Dock dock = ship.getDock();
+                    dock.setShip(newShip);
+                    newShip.setDock(dock);
+                    program.updateLog("Ship " + newShip.getName() + " Arrived at " + dock.getName());
+                    port.notifyAll();
+                    return;
                 }
             }
         }
