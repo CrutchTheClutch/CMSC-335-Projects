@@ -1,6 +1,7 @@
 package SeaPortProject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -11,24 +12,31 @@ import java.util.Scanner;
  */
 class Ship extends Thing {
 
+    private SeaPort port;
+    private Dock dock;
     private ArrayList <Job> jobs;
-    private PortTime arrivalTime;
-    private PortTime dockTime;
-    private double weight;
-    private double length;
-    private double width;
-    private double draft;
+    private PortTime arrivalTime, dockTime;
+    private double weight, length, width, draft;
+    private boolean isBusy = false;
 
     /**
      * Constructs the Ship Object
      * @param sc a file Scanner of the current text file
      */
-    Ship(Scanner sc) {
+    Ship(Scanner sc, HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap) {
         super(sc);
         if (sc.hasNextDouble()) weight = sc.nextDouble();
         if (sc.hasNextDouble()) length = sc.nextDouble();
         if (sc.hasNextDouble()) width = sc.nextDouble();
         if (sc.hasNextDouble()) draft = sc.nextDouble();
+        jobs = new ArrayList<>();
+
+        dock = docksHashMap.get(this.getParent());
+        if (dock == null) {
+            port = portsHashMap.get(this.getParent());
+        } else {
+            port = portsHashMap.get(dock.getParent());
+        }
     }
 
     /**
@@ -143,12 +151,39 @@ class Ship extends Thing {
         this.draft = draft;
     }
 
+    SeaPort getPort() {
+        return port;
+    }
+
+    void setPort(SeaPort port) {
+        this.port = port;
+    }
+
+    Dock getDock() {
+        return dock;
+    }
+
+    void setDock(Dock dock) {
+        this.dock = dock;
+    }
+
+    boolean getIsBusy() {
+        return isBusy;
+    }
+
+    void setIsBusy(boolean isBusy) {
+        this.isBusy = isBusy;
+    }
+
     /**
      * toString method
      * @return Formatted String of Ship
      */
-    @Override
     public String toString() {
-        return super.toString() + " " + this.getWeight() + " " + this.getLength() + " " + this.getWidth() + " " + this.getDraft();
+        return super.toString() + " "
+                + this.getWeight() + " "
+                + this.getLength() + " "
+                + this.getWidth() + " "
+                + this.getDraft();
     }
 }

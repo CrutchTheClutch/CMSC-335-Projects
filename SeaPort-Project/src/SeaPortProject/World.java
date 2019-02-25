@@ -1,5 +1,6 @@
 package SeaPortProject;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -12,6 +13,7 @@ import java.util.Scanner;
  */
 public class World extends Thing {
 
+    private SeaPortProgram program;
     private ArrayList <SeaPort> ports;
     private PortTime time;
 
@@ -19,8 +21,9 @@ public class World extends Thing {
      * Constructs the World Object
      * @param sc a file Scanner of the current text file
      */
-    World(Scanner sc) {
+    World(Scanner sc, SeaPortProgram program) {
         super(sc);
+        this.program = program;
         ports = new ArrayList<>();
     }
 
@@ -33,7 +36,8 @@ public class World extends Thing {
         HashMap<Integer, SeaPort> portsHashMap = new HashMap<>();
         HashMap<Integer, Dock> docksHashMap = new HashMap<>();
         HashMap<Integer, Ship> shipsHashMap = new HashMap<>();
-        HashMap<Integer, Person> personHashMap = new HashMap<>();
+        HashMap<Integer, Person> personsHashMap = new HashMap<>();
+        HashMap<Integer, Job> jobsHashMap = new HashMap<>();
 
         while (file.hasNextLine()) {
 
@@ -44,28 +48,27 @@ public class World extends Thing {
                 switch (sc.next()) {
                     case "port":
                         SeaPort seaPort = new SeaPort(sc);
-                        addPort(seaPort);
-                        portsHashMap.put(seaPort.getIndex(), seaPort);
+                        addPort(portsHashMap, seaPort);
                         break;
                     case "dock":
                         Dock dock = new Dock(sc);
-                        addDock(portsHashMap, dock);
-                        docksHashMap.put(dock.getIndex(), dock);
+                        addDock(portsHashMap, docksHashMap, dock);
                         break;
                     case "pship":
-                        PassengerShip pShip = new PassengerShip(sc);
-                        addShip(portsHashMap, docksHashMap, pShip);
-                        shipsHashMap.put(pShip.getIndex(), pShip);
+                        PassengerShip pShip = new PassengerShip(sc, portsHashMap, docksHashMap);
+                        addShip(portsHashMap, docksHashMap, shipsHashMap, pShip);
                         break;
                     case "cship":
-                        CargoShip cShip = new CargoShip(sc);
-                        addShip(portsHashMap, docksHashMap, cShip);
-                        shipsHashMap.put(cShip.getIndex(), cShip);
+                        CargoShip cShip = new CargoShip(sc, portsHashMap, docksHashMap);
+                        addShip(portsHashMap, docksHashMap, shipsHashMap, cShip);
                         break;
                     case "person":
                         Person person = new Person(sc);
-                        addPerson(portsHashMap, person);
-                        personHashMap.put(person.getIndex(), person);
+                        addPerson(portsHashMap, personsHashMap, person);
+                        break;
+                    case "job":
+                        Job job = new Job(sc, program, shipsHashMap);
+                        addJob(shipsHashMap, jobsHashMap, job);
                         break;
                 }
             }
@@ -76,8 +79,9 @@ public class World extends Thing {
      * Adds a SeaPort to the World
      * @param port SeaPort that will be added
      */
-    private void addPort(SeaPort port) {
+    private void addPort(HashMap<Integer, SeaPort> portsHashMap, SeaPort port) {
         this.getPorts().add(port);
+        portsHashMap.put(port.getIndex(), port);
     }
 
     /**
@@ -85,9 +89,10 @@ public class World extends Thing {
      * @param portsHashMap HashMap containing <code>SeaPort</code> Objects and <code>index</code> values
      * @param dock Dock that will be added
      */
-    private void addDock(HashMap <Integer, SeaPort> portsHashMap, Dock dock) {
+    private void addDock(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap, Dock dock) {
         SeaPort port = portsHashMap.get(dock.getParent());
         port.getDocks().add(dock);
+        docksHashMap.put(dock.getIndex(), dock);
     }
 
     /**
@@ -96,7 +101,8 @@ public class World extends Thing {
      * @param docksHashMap HashMap containing <code>Dock</code> Objects and <code>index</code> values
      * @param ship Ship that will be added
      */
-    private void addShip(HashMap <Integer, SeaPort> portsHashMap, HashMap <Integer, Dock> docksHashMap, Ship ship) {
+    private void addShip(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap,
+                         HashMap<Integer, Ship> shipsHashMap, Ship ship) {
         Dock dock = docksHashMap.get(ship.getParent());
         SeaPort port;
 
@@ -108,6 +114,7 @@ public class World extends Thing {
             dock.setShip(ship);
         }
         port.getShips().add(ship);
+        shipsHashMap.put(ship.getIndex(), ship);
     }
 
     /**
@@ -115,9 +122,16 @@ public class World extends Thing {
      * @param portsHashMap HashMap containing <code>SeaPort</code> Objects and <code>index</code> values
      * @param person Person that will be added
      */
-    private void addPerson(HashMap <Integer, SeaPort> portsHashMap, Person person) {
+    private void addPerson(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Person> personsHashMap, Person person) {
         SeaPort port = portsHashMap.get(person.getParent());
         port.getPersons().add(person);
+        personsHashMap.put(person.getIndex(), person);
+    }
+
+    private void addJob(HashMap<Integer, Ship> shipsHashMap, HashMap<Integer, Job> jobsHashMap, Job job) {
+        Ship ship = shipsHashMap.get(job.getParent());
+        ship.getJobs().add(job);
+        jobsHashMap.put(job.getIndex(), job);
     }
 
     /**
@@ -146,7 +160,6 @@ public class World extends Thing {
 
     /**
      * Setter method for the current <code>PortTime</code>
-     * @return time
      */
     void setTime(PortTime time) {
         this.time = time;
@@ -171,6 +184,11 @@ public class World extends Thing {
             for (Ship ship : port.getShips()) {
                 if (ship.getIndex() == index) {
                     results.add(ship);
+                }
+                for (Job job : ship.getJobs()) {
+                    if (job.getIndex() == index) {
+                        results.add(job);
+                    }
                 }
             }
             for (Person person : port.getPersons()) {
@@ -202,6 +220,11 @@ public class World extends Thing {
             for (Ship ship : port.getShips()) {
                 if (ship.getName().equalsIgnoreCase(name)) {
                     results.add(ship);
+                }
+                for (Job job : ship.getJobs()) {
+                    if (job.getName().equalsIgnoreCase(name)) {
+                        results.add(job);
+                    }
                 }
             }
             for (Person person : port.getPersons()) {
@@ -256,6 +279,13 @@ public class World extends Thing {
                     results.addAll(port.getPersons());
                 }
                 break;
+            case "job":
+                for (SeaPort port : ports) {
+                    for (Ship ship : port.getShips()) {
+                        results.addAll(ship.getJobs());
+                    }
+                }
+                break;
         }
         return results;
     }
@@ -264,6 +294,7 @@ public class World extends Thing {
      * toString method
      * @return Formatted String of World
      */
+    @Override
     public String toString() {
         StringBuilder out = new StringBuilder("\n\n>>>>> World: ");
 
