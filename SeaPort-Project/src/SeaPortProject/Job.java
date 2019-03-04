@@ -44,7 +44,7 @@ class Job extends Thing implements Runnable {
         if (sc.hasNextDouble()) duration = sc.nextDouble();
 
         this.program = program;
-        jobsTable = program.getjobsTable();
+        jobsTable = program.getJobsTable();
         jobsTableModel = (DefaultTableModel) jobsTable.getModel();
 
         ship = shipsHashMap.get(this.getParent());

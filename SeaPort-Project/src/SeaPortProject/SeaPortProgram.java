@@ -30,7 +30,6 @@ import java.util.Scanner;
 public class SeaPortProgram extends JFrame {
 
     private World world;
-    private enum ErrorType {NO_FILE, NO_WORLD, MISSING_SEARCH_PARAM}
 
     // GUI Variables
     private JComboBox <String> searchCombo, sortCombo, sortTargetCombo;
@@ -344,6 +343,10 @@ public class SeaPortProgram extends JFrame {
         display();
     }
 
+    /**
+     * Gets all {@link Ship Ships} from the {@link World}.  Removes them from their respective {@link SeaPort}
+     * if they do not contain any {@link Job Jobs}.  Then, starts all {@link Job} threads.
+     */
     private void startAllJobs() {
         for (SeaPort port : world.getPorts()) {
             for (Dock dock : port.getDocks()) {
@@ -370,7 +373,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Displays All Data from the currently loaded text file
+     * Calls both {@link #updateWorldDisplay}, and {@link #updateJobDisplay}. Updates all of the GUI elements.
      */
     private void display() {
         if (world == null) {
@@ -388,7 +391,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     *
+     * Updates the {@code worldTree} GUI.
      */
     private void updateWorldDisplay() {
         DefaultTreeModel treeModel = (DefaultTreeModel) worldTree.getModel();
@@ -463,7 +466,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     *
+     * Updates the {@code jobsTable} GUI.
      */
     private void updateJobDisplay() {
         DefaultTableModel jobsTableModel = (DefaultTableModel) jobsTable.getModel();
@@ -479,6 +482,10 @@ public class SeaPortProgram extends JFrame {
         }
     }
 
+    /**
+     * Clears both {@code logTextArea} and {@code searchTextArea} of all text.  Then, removes all finished
+     * {@link Job Jobs} from the {@code jobsTable}.
+     */
     private void clear() {
         logTextArea.setText("");
         searchTextArea.setText("");
@@ -486,7 +493,11 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Searches the data structure for the <code>fieldText</code> of parameter type <code>comboSelectedItem</code>
+     * Searches the {@link World} for the value defined in {@code fieldText}.  Search type is determined by the selected
+     * item in {@code searchCombo}.  Both {@code fieldText} and {@code searchCombo} are located in the
+     * {@code searchPanel} of the GUI.  Once the search is deemed valid, the helper method
+     * {@link #searchType(String, String)} is called, passing the values of {@code fieldText} and {@code searchCombo}
+     * as arguments.
      */
     private void search() {
         String comboSelectedItem = String.valueOf(searchCombo.getSelectedItem());
@@ -508,9 +519,13 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Search helper method, invokes the correct world search method based on the <code>type</code>
-     * @param type parameter that will be searched
-     * @param target term that will be searched
+     * Helper method for {@link #search()}, determines the search type and calls the appropriate search method from the
+     * {@link World} class.  Will call one of four methods: {@link World#indexSearch(ArrayList, int) indexSearch()},
+     * {@link World#nameSearch(ArrayList, String) nameSearch()},
+     * {@link World#skillSearch(ArrayList, String) skillSearch()}, or
+     * {@link World#typeSearch(ArrayList, String) typeSearch()}.
+     * @param type value from {@code searchCombo}, the type of search that will be preformed.
+     * @param target value from {@code fieldText}, the value that will be searched for.
      */
     private void searchType(String type, String target) {
 
@@ -538,9 +553,9 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * search helper method, is used to build the results string
-     * @param results ArrayList of all results from a search
-     * @return Formatted String of all results
+     * Helper method for {@link #search()}, builds a string of all search results.
+     * @param results ArrayList of all search results.
+     * @return Formatted String of all search results.
      */
     private String searchResultsToString(ArrayList<Thing> results, String params) {
         StringBuilder out = new StringBuilder("Search Results: " + params);
@@ -558,7 +573,8 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Sorts the data <code>sortComboItem</code> structure based on the <code>sortTarget</code>
+     * Sorts the {@code sortCombo} objects in the {@link World}. Sorts the {@code sortCombo} objects based on the value
+     * of {@code sortTargetCombo}.
      */
     private void sort(){
 
@@ -611,7 +627,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     *
+     * Expands all nodes in the {@code worldTree}.
      */
     private void expandTree() {
         if (world == null) {
@@ -628,7 +644,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     *
+     * Collapses all nodes in the {@code worldTree}.
      */
     private void collapseTree() {
         if (world == null) {
@@ -644,6 +660,10 @@ public class SeaPortProgram extends JFrame {
         updateLog("Tree Collapse Success");
     }
 
+    /**
+     * Creates a {@code JOptionPane} with the appropriate error message.
+     * @param type one of the predefined {@code ErrorType} values, used to determine error message.
+     */
     private void displayError(ErrorType type) {
         String msg = "Error";
         switch(type) {
@@ -661,21 +681,27 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     *
-     * @param logMessage
+     * Appends a log message to the {@code logTextArea}.  Messages are formatted to contain the current date and time
+     * at the beginning of each log message.  Is called by various methods in the {@link SeaPortProgram}, {@link World},
+     * and {@link Job} classes.
+     * @param logMessage Message to be displayed in the {@code logTextArea}.
      */
     void updateLog(String logMessage) {
         String currentTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(new Date().getTime());
         logTextArea.append(currentTime + " | " + logMessage + "\n");
     }
 
-    JTable getjobsTable() {
+    /**
+     * Getter method for the {@code jobsTable} variable.
+     * @return Current {@code jobsTable}.
+     */
+    JTable getJobsTable() {
         return jobsTable;
     }
 
     /**
-     * Main method, creates the SeaPortProgram();
-     * @param args will not affect the program
+     * Creates an instance of {@link SeaPortProgram};
+     * @param args Will not affect the program.
      */
     public static void main(String[] args) {
         new SeaPortProgram();
