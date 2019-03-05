@@ -3,18 +3,24 @@ package SeaPortProject;
 import java.util.Scanner;
 
 /**
- * Filename :   Person
- * Author :     William Crutchfield
- * Date:        1/26/2019
- * Description: Defines the Person Object
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code Person} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; January 26th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>Defines the {@code Person} object.
+ *
+ * @author  William Crutchfield
  */
 class Person extends Thing {
 
     private String skill;
 
     /**
-     * Constructs the Person Object
-     * @param sc a file Scanner of the current text file
+     * Constructor for {@code Person}.
+     *
+     * @param sc The current text file data.
      */
     Person(Scanner sc) {
         super(sc);
@@ -22,24 +28,27 @@ class Person extends Thing {
     }
 
     /**
-     * Getter method for the Skill of the Person
-     * @return Skill of the Person
+     * Getter method for {@code skill}.
+     *
+     * @return Current {@code skill}.
      */
     String getSkill() {
         return skill;
     }
 
     /**
-     * Setter method for the Skill of the Person
-     * @param skill Skill of the Person
+     * Setter method for {@code skill}.
+     *
+     * @param skill New {@code skill}.
      */
     void setSkill(String skill) {
         this.skill = skill;
     }
 
     /**
-     * toString method
-     * @return Formatted String of Person
+     * Returns a string representation of the {@code Person}.
+     *
+     * @return Formatted string of the {@code Person} object.
      */
     @Override
     public String toString() {

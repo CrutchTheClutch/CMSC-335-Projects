@@ -4,10 +4,15 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 /**
- * Filename :   PassengerShip
- * Author :     William Crutchfield
- * Date:        1/26/2019
- * Description: Defines the PassengerShip Object
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code PassengerShip} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; January 26th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>Defines the {@code PassengerShip} object.
+ *
+ * @author  William Crutchfield
  */
 class PassengerShip extends Ship {
 
@@ -16,10 +21,11 @@ class PassengerShip extends Ship {
     private int numberOfOccupiedRooms;
 
     /**
-     * Constructs the PassengerShip Object
-     * @param sc a file Scanner of the current text file
-     * @param portsHashMap
-     * @param docksHashMap
+     * Constructor for {@code PassengerShip}.
+     *
+     * @param sc            The current text file data.
+     * @param portsHashMap  HashMap containing all {@link SeaPort SeaPorts} and their respective {@code index} values.
+     * @param docksHashMap  HashMap containing all {@link Dock Docks} and their respective {@code index} values.
      */
     PassengerShip(Scanner sc, HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap) {
         super(sc, portsHashMap, docksHashMap);
@@ -29,56 +35,63 @@ class PassengerShip extends Ship {
     }
 
     /**
-     * Getter method for numberOfPassengers in the PassengerShip
-     * @return numberOfPassengers in the PassengerShip
+     * Getter method for {@code numberOfPassengers}.
+     *
+     * @return Current {@code numberOfPassengers}.
      */
     int getNumberOfPassengers() {
         return numberOfPassengers;
     }
 
     /**
-     * Setter method for numberOfPassengers in the PassengerShip
-     * @param numberOfPassengers numberOfPassengers in the PassengerShip
+     * Setter method for {@code numberOfPassengers}.
+     *
+     * @param numberOfPassengers New {@code numberOfPassengers}.
      */
     void setNumberOfPassengers(int numberOfPassengers) {
         this.numberOfPassengers = numberOfPassengers;
     }
 
     /**
-     * Getter method for numberOfRooms in the PassengerShip
-     * @return numberOfRooms in the PassengerShip
+     * Getter method for {@code numberOfRooms}.
+     *
+     * @return Current {@code numberOfRooms}.
      */
     int getNumberOfRooms() {
         return numberOfRooms;
     }
 
     /**
-     * Setter method for numberOfRooms in the PassengerShip
-     * @param numberOfRooms numberOfRooms in the PassengerShip
+     * Setter method for {@code numberOfRooms}.
+     *
+     * @param numberOfRooms New {@code numberOfRooms}.
      */
     void setNumberOfRooms(int numberOfRooms) {
         this.numberOfRooms = numberOfRooms;
     }
 
     /**
-     * Getter method for numberOfOccupiedRooms in the PassengerShip
-     * @return numberOfOccupiedRooms in the PassengerShip
+     * Getter method for {@code numberOfOccupiedRooms}.
+     *
+     * @return Current {@code numberOfOccupiedRooms}.
      */
     int getNumberOfOccupiedRooms() {
         return numberOfOccupiedRooms;
     }
 
     /**
-     * Setter method for numberOfOccupiedRooms in the PassengerShip
-     * @param numberOfOccupiedRooms numberOfOccupiedRooms in the PassengerShip
+     * Setter method for {@code numberOfOccupiedRooms}.
+     *
+     * @param numberOfOccupiedRooms New {@code numberOfOccupiedRooms}.
      */
     void setNumberOfOccupiedRooms(int numberOfOccupiedRooms) {
         this.numberOfOccupiedRooms = numberOfOccupiedRooms;
     }
 
     /**
-     * toString method
-     * @return Formatted String of PassengerShip
+     * Returns a string representation of the {@code PassengerShip}.
+     *
+     * @return Formatted string of the {@code PassengerShip} object.
      */
     @Override
     public String toString() {

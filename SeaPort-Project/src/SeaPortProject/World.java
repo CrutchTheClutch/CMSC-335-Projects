@@ -5,10 +5,22 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 /**
- * Filename :   World
- * Author :     William Crutchfield
- * Date:        1/25/2019
- * Purpose:     Defines the World Object
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code World} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; January 25th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>Defines the {@code World} object.  Is responsible for processing the text file data, and creating the
+ * corresponding objects within it.  The {@code World} acts as the "parent" object for all classes that extend
+ * {@link Thing}.
+ *
+ * <br/><br/>
+ *
+ * <p>Note that it is necessary to pass an instance of {@link SeaPortProgram} to the {@code World} for {@link Job}
+ * object creation.
+ *
+ * @author William Crutchfield
  */
 public class World extends Thing {
 
@@ -17,8 +29,10 @@ public class World extends Thing {
     private PortTime time;
 
     /**
-     * Constructs the World Object
-     * @param sc a file Scanner of the current text file
+     * Constructor for {@code World}.
+     *
+     * @param sc        The current text file data.
+     * @param program   Instance of {@link SeaPortProgram}.
      */
     World(Scanner sc, SeaPortProgram program) {
         super(sc);
@@ -27,8 +41,10 @@ public class World extends Thing {
     }
 
     /**
-     * Creates the various objects from the text file
-     * @param file text file that is processed
+     * Creates all {@link SeaPort SeaPorts}, {@link Dock Docks}, {@link Ship Ships}, {@link Person Persons}, and
+     * {@link Job Jobs} from the text file data.
+     *
+     * @param file All text file data.
      */
     void process(Scanner file) {
 
@@ -75,8 +91,9 @@ public class World extends Thing {
     }
 
     /**
-     * Adds a SeaPort to the World
-     * @param port SeaPort that will be added
+     * Adds a {@link SeaPort} to the {@code World}.
+     *
+     * @param port {@link SeaPort} that will be added
      */
     private void addPort(HashMap<Integer, SeaPort> portsHashMap, SeaPort port) {
         this.getPorts().add(port);
@@ -84,9 +101,10 @@ public class World extends Thing {
     }
 
     /**
-     * Adds a Dock to the World
-     * @param portsHashMap HashMap containing <code>SeaPort</code> Objects and <code>index</code> values
-     * @param dock Dock that will be added
+     * Adds a {@link Dock} to the {@code World}.
+     *
+     * @param portsHashMap  HashMap containing all {@link SeaPort SeaPorts} and their respective {@code index} values.
+     * @param dock          {@link Dock} that will be added.
      */
     private void addDock(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap, Dock dock) {
         SeaPort port = portsHashMap.get(dock.getParent());
@@ -95,10 +113,11 @@ public class World extends Thing {
     }
 
     /**
-     * Adds a Ship to the World
-     * @param portsHashMap HashMap containing <code>SeaPort</code> Objects and <code>index</code> values
-     * @param docksHashMap HashMap containing <code>Dock</code> Objects and <code>index</code> values
-     * @param ship Ship that will be added
+     * Adds a {@link Ship} to the {@code World}.
+     *
+     * @param portsHashMap  HashMap containing all {@link SeaPort Seaports} and their respective {@code index} values.
+     * @param docksHashMap  HashMap containing all {@link Dock Docks} and their respective {@code index} values.
+     * @param ship          {@link Ship} that will be added.
      */
     private void addShip(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap,
                          HashMap<Integer, Ship> shipsHashMap, Ship ship) {
@@ -117,9 +136,10 @@ public class World extends Thing {
     }
 
     /**
-     * Adds a Person to the World
-     * @param portsHashMap HashMap containing <code>SeaPort</code> Objects and <code>index</code> values
-     * @param person Person that will be added
+     * Adds a {@link Person} to the {@code World}.
+     *
+     * @param portsHashMap  HashMap containing all {@link SeaPort Seaports} and their respective {@code index} values.
+     * @param person        {@link Person} that will be added.
      */
     private void addPerson(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Person> personsHashMap, Person person) {
         SeaPort port = portsHashMap.get(person.getParent());
@@ -127,6 +147,13 @@ public class World extends Thing {
         personsHashMap.put(person.getIndex(), person);
     }
 
+    /**
+     * Adds a {@link Job} to the {@code World}.
+     *
+     * @param shipsHashMap  HashMap containing all {@link Ship Ships} and their respective {@code index} values.
+     * @param jobsHashMap   HashMap containing all {@link Job Jobs} and their respective {@code index} values.
+     * @param job           {@link Job} that will be added.
+     */
     private void addJob(HashMap<Integer, Ship> shipsHashMap, HashMap<Integer, Job> jobsHashMap, Job job) {
         Ship ship = shipsHashMap.get(job.getParent());
         ship.getJobs().add(job);
@@ -134,41 +161,48 @@ public class World extends Thing {
     }
 
     /**
-     * Getter method for the current <code>SeaPort</code> in the <code>World</code>
-     * @return ArrayList of SeaPorts
+     * Getter method for {@code ports}.  An {@link ArrayList} of all {@link SeaPort SeaPorts} within the {@code World}.
+     *
+     * @return Current {@code ports}.
      */
     ArrayList<SeaPort> getPorts() {
         return ports;
     }
 
     /**
-     * Setter method for the current SeaPorts in the World
-     * @param ports ArrayList of SeaPorts
+     * Setter method for {@code ports}.  An {@link ArrayList} of all {@link SeaPort SeaPorts} within the {@code World}.
+     *
+     * @param ports New {@code ports}.
      */
     void setPorts(ArrayList<SeaPort> ports) {
         this.ports = ports;
     }
 
     /**
-     * Getter method for the current <code>PortTime</code>
-     * @return time
+     * Getter method {@code time}.  An instance of {@link PortTime}.
+     *
+     * @return Current {@code time}.
      */
     PortTime getTime() {
         return time;
     }
 
     /**
-     * Setter method for the current <code>PortTime</code>
+     * Setter method for {@code time}.  An instance of {@link PortTime}.
+     *
+     * @param time New {@code time}.
      */
     void setTime(PortTime time) {
         this.time = time;
     }
 
     /**
-     * Searches the World based on index
-     * @param results ArrayList of Things matching the index
-     * @param index index to be found
-     * @return ArrayList of search results
+     * Searches the {@code World} based on {@code index}.  Adds results to the {@code results} variable as they are
+     * found.
+     *
+     * @param results   {@link ArrayList} of {@link Thing Things} matching the index.  Empty upon initial method call.
+     * @param index     {@code index} value to be found.
+     * @return          {@code results} variable.
      */
     ArrayList <Thing> indexSearch(ArrayList <Thing> results, int index) {
         for (SeaPort port : ports) {
@@ -201,10 +235,12 @@ public class World extends Thing {
     }
 
     /**
-     * Searches the World based on name
-     * @param results ArrayList of Things matching the name
-     * @param name name to be found
-     * @return ArrayList of search results
+     * Searches the {@code World} based on {@code name}.  Adds results to the {@code results} variable as they are
+     * found.
+     *
+     * @param results   {@link ArrayList} of {@link Thing Things} matching the index.  Empty upon initial method call.
+     * @param name      {@code index} value to be found.
+     * @return          {@code results} variable.
      */
     ArrayList <Thing> nameSearch(ArrayList <Thing> results, String name) {
         for (SeaPort port : ports) {
@@ -236,10 +272,12 @@ public class World extends Thing {
     }
 
     /**
-     * Searches the World based on skill
-     * @param results ArrayList of Things matching the skill
-     * @param skill skill to be found
-     * @return ArrayList of search results
+     * Searches the {@code World} based on {@code skill}.  Adds results to the {@code results} variable as they are
+     * found.
+     *
+     * @param results   {@link ArrayList} of {@link Thing Things} matching the index.  Empty upon initial method call.
+     * @param skill     {@code skill} value to be found.
+     * @return          {@code results} variable.
      */
     ArrayList<Thing> skillSearch(ArrayList<Thing> results, String skill) {
         for (SeaPort port : ports) {
@@ -253,10 +291,12 @@ public class World extends Thing {
     }
 
     /**
-     * Searches the World based on type
-     * @param results ArrayList of Things matching the type
-     * @param type type to be found
-     * @return ArrayList of search results
+     * Searches the {@code World} based on {@code type}.  Adds results to the {@code results} variable as they are
+     * found.
+     *
+     * @param results   {@link ArrayList} of {@link Thing Things} matching the index.  Empty upon initial method call.
+     * @param type      {@code type} value to be found.
+     * @return          {@code results} variable.
      */
     ArrayList <Thing> typeSearch(ArrayList <Thing> results, String type) {
         switch (type.toLowerCase()) {
@@ -290,8 +330,9 @@ public class World extends Thing {
     }
 
     /**
-     * toString method
-     * @return Formatted String of World
+     * Returns a string representation of the {@code World}.
+     *
+     * @return Formatted string of the {@code World} object.
      */
     @Override
     public String toString() {
