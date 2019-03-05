@@ -8,10 +8,22 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 /**
- * Filename :   Job
- * Author :     William Crutchfield
- * Date:        2/18/2019
- * Description: Creates and Runs Jobs on separate Threads
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code Job} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; February 18th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>Defines the {@code Job} object.  Each {@code Job} is assigned to its own thread and each {@link Ship} can only run
+ * a single {@code Job} at one time.  This class also defines {@link JPanel JPanels} for each {@code Job} that will be
+ * added to the {@code jobsTable} in {@link SeaPortProgram}.
+ *
+ * <br/><br/>
+ *
+ * <p>Note that {@code Job} objects do not perform any actual logic.  {@code Job} objects are simulated tasks using
+ * delays within the threads.
+ *
+ * @author  William Crutchfield
  */
 class Job extends Thing implements Runnable {
 
@@ -20,14 +32,12 @@ class Job extends Thing implements Runnable {
     private JTable jobsTable;
     private DefaultTableModel jobsTableModel;
 
-    private Status status = Status.SUSPENDED;
+    private JobStatus status = JobStatus.SUSPENDED;
     private boolean isRunning = true;
     private boolean isCanceled = false;
     private boolean isFinished = false;
     private double duration;
     private Thread thread;
-
-    private enum Status {RUNNING, SUSPENDED, WAITING, DONE, CANCELLED}
 
     // GUI Variables
     private SeaPortProgram program;
@@ -38,6 +48,13 @@ class Job extends Thing implements Runnable {
     private JLabel statusLabel;
     private JProgressBar progressBar;
 
+    /**
+     * Constructor for {@code Person}.
+     *
+     * @param sc            The current text file data.
+     * @param program       Instance of {@link SeaPortProgram}.
+     * @param shipsHashMap  HashMap containing all {@link Ship Ships} and their respective {@code index} values.
+     */
     Job(Scanner sc, SeaPortProgram program, HashMap<Integer, Ship> shipsHashMap) {
 
         super(sc);
@@ -89,16 +106,28 @@ class Job extends Thing implements Runnable {
         cancelBtn.addActionListener(e -> cancelJob());
     }
 
+    /**
+     * Toggles the {@code isRunning} boolean.
+     */
     private void toggleIsRunning() {
         isRunning = !isRunning;
     }
 
+    /**
+     * Cancels the current {@code Job}.
+     */
     private void cancelJob() {
         isCanceled = true;
         isRunning = false;
     }
 
-    private void setStatus(Status status) {
+    /**
+     * Sets the {@link JobStatus} for the current {@code Job}.  Depending on the status, the {@code statusPanel} color
+     * will be changed, along with the boolean {@code isFinished}.
+     *
+     * @param status A predefined {@link JobStatus}, used to determine the status of the current {@code Job}.
+     */
+    private void setStatus(JobStatus status) {
         this.status = status;
         switch (status){
             case RUNNING:
@@ -124,26 +153,55 @@ class Job extends Thing implements Runnable {
         statusLabel.setText(status.toString());
     }
 
+    /**
+     * Getter method for {@code statusPanel}.  A {@link JPanel} that displays the {@link JobStatus}.
+     *
+     * @return Current {@code statusPanel}.
+     */
     JPanel getStatusPanel() {
         return statusPanel;
     }
 
+    /**
+     * Getter method for {@code progressPanel}.  A {@link JPanel} that displays the progress.
+     *
+     * @return Current {@code progressPanel}.
+     */
     JPanel getProgressPanel() {
         return progressPanel;
     }
 
+    /**
+     * Getter method for {@code suspendPanel}.  A {@link JPanel} that displays the Pause button.
+     *
+     * @return Current {@code suspendPanel}.
+     */
     JPanel getSuspendPanel() {
         return suspendPanel;
     }
 
+    /**
+     * Getter method for {@code cancelPanel}.  A {@link JPanel} that displays the Cancel button.
+     *
+     * @return Current {@code cancelPanel}.
+     */
     JPanel getCancelPanel() {
         return cancelPanel;
     }
 
+    /**
+     * Getter method for {@code thread}.
+     *
+     * @return Current {@code thread}.
+     */
     Thread getThread() {
         return thread;
     }
 
+    /**
+     * Updates the {@code progressBar} as the {@code Job} is executed.  Depending on the {@link JobStatus}, the
+     * {@code thread} will either run, wait, or end.
+     */
     @Override
     public void run() {
         long currentTime = System.currentTimeMillis();
@@ -152,7 +210,7 @@ class Job extends Thing implements Runnable {
 
         synchronized (port) {
             while (ship.getIsBusy() || ship.getDock() == null) {
-                setStatus(Status.WAITING);
+                setStatus(JobStatus.WAITING);
                 try{
                     port.wait();
                 } catch (InterruptedException ignored) {}
@@ -167,19 +225,19 @@ class Job extends Thing implements Runnable {
             } catch (InterruptedException ignored) {}
 
             if (isRunning) {
-                setStatus(Status.RUNNING);
+                setStatus(JobStatus.RUNNING);
                 startTime += 100;
                 progressBar.setValue((int)(((startTime - currentTime) / duration) * 100));
             } else {
-                setStatus(Status.SUSPENDED);
+                setStatus(JobStatus.SUSPENDED);
             }
             jobsTable.tableChanged(new TableModelEvent(jobsTableModel));
         }
 
-        if (isCanceled && status != Status.DONE) {
-            setStatus(Status.CANCELLED);
+        if (isCanceled && status != JobStatus.DONE) {
+            setStatus(JobStatus.CANCELLED);
         } else {
-            setStatus(Status.DONE);
+            setStatus(JobStatus.DONE);
         }
 
         isFinished = true;
@@ -207,6 +265,12 @@ class Job extends Thing implements Runnable {
         }
     }
 
+    /**
+     * Returns a string representation of the {@code Job}.
+     *
+     * @return Formatted string of the {@code Job} object.
+     */
+    @Override
     public String toString() {
         return super.toString();
     }

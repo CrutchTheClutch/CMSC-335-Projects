@@ -4,10 +4,15 @@ import java.util.Scanner;
 import java.util.HashMap;
 
 /**
- * Filename :   CargoShip
- * Author :     William Crutchfield
- * Date:        1/25/2019
- * Description: Defines the CargoShip Object
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code CargoShip} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; January 26th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>Defines the {@code CargoShip} object.
+ *
+ * @author  William Crutchfield
  */
 class CargoShip extends Ship {
 
@@ -16,8 +21,11 @@ class CargoShip extends Ship {
     private double cargoValue;
 
     /**
-     * Constructs the CargoShip Object
-     * @param sc a file Scanner of the current text file
+     * Constructor for {@code CargoShip}.
+     *
+     * @param sc            The current text file data.
+     * @param portsHashMap  HashMap containing all {@link SeaPort SeaPorts} and their respective {@code index} values.
+     * @param docksHashMap  HashMap containing all {@link Dock Docks} and their respective {@code index} values.
      */
     CargoShip(Scanner sc, HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Dock> docksHashMap) {
         super(sc, portsHashMap, docksHashMap);
@@ -27,56 +35,63 @@ class CargoShip extends Ship {
     }
 
     /**
-     * Getter method for cargoWeight in the CargoShip
-     * @return cargoWeight in the CargoShip
+     * Getter method for {@code cargoWeight}.
+     *
+     * @return Current {@code cargoWeight}.
      */
     double getCargoWeight() {
         return cargoWeight;
     }
 
     /**
-     * Setter method for cargoWeight in the CargoShip
-     * @param cargoWeight cargoWeight in the CargoShip
+     * Setter method for {@code cargoWeight}.
+     *
+     * @param cargoWeight New {@code cargoWeight}.
      */
     void setCargoWeight(double cargoWeight) {
         this.cargoWeight = cargoWeight;
     }
 
     /**
-     * Getter method for cargoVolume in the CargoShip
-     * @return cargoVolume in the CargoShip
+     * Getter method for {@code cargoVolume}.
+     *
+     * @return Current {@code cargoVolume}.
      */
     double getCargoVolume() {
         return cargoVolume;
     }
 
     /**
-     * Setter method for cargoVolume in the CargoShip
-     * @param cargoVolume cargoVolume in the CargoShip
+     * Setter method for {@code cargoVolume}.
+     *
+     * @param cargoVolume New {@code cargoVolume}.
      */
     void setCargoVolume(double cargoVolume) {
         this.cargoVolume = cargoVolume;
     }
 
     /**
-     * Getter method for cargoValue in the CargoShip
-     * @return cargoValue in the CargoShip
+     * Getter method for {@code cargoValue}.
+     *
+     * @return Current {@code cargoValue}.
      */
     double getCargoValue() {
         return cargoValue;
     }
 
     /**
-     * Setter method for cargoValue in the CargoShip
-     * @param cargoValue cargoValue in the CargoShip
+     * Setter method for {@code cargoValue}.
+     *
+     * @param cargoValue New {@code cargoValue}.
      */
     void setCargoValue(double cargoValue) {
         this.cargoValue = cargoValue;
     }
 
     /**
-     * toString method
-     * @return Formatted String of CargoShip
+     * Returns a string representation of the {@code CargoShip}.
+     *
+     * @return Formatted string of the {@code CargoShip} object.
      */
     @Override
     public String toString() {

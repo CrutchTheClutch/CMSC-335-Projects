@@ -16,16 +16,21 @@ import java.util.Date;
 import java.util.Scanner;
 
 /**
- * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code SeaPortProgram} <br>
- * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br>
- * <strong>Date Created:</strong> &emsp; January 25th, 2019 <br>
- * <br> <p>
- * {@code SeaPortProgram} is the base class for the entire {@link SeaPortProject}.  It's main responsibilities
- * involve constructing the GUI, ActionListeners, and building the {@link World} object.  The {@code SeaPortProgram}
- * will only build the {@link World} object from a text file, after it has been read in.
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code SeaPortProgram} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; January 25th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * <p>{@code SeaPortProgram} is the driver class for the entire {@link SeaPortProject}. It's main responsibilities
+ * involve constructing the GUI, ActionListeners, the {@link World} object, and starting all {@link Job} threads.
+ *
+ * <br/><br/>
+ *
+ * <p> It's important to note that the {@code SeaPortProgram} will only build the {@link World} object from a text
+ * file, after it has been read in.
  *
  * @author William Crutchfield
- * @see World
  */
 public class SeaPortProgram extends JFrame {
 
@@ -39,7 +44,8 @@ public class SeaPortProgram extends JFrame {
     private JTable jobsTable, resourcesTable;
 
     /**
-     * Default Constructor for {@code SeaPortProgram}.
+     * Default Constructor for {@code SeaPortProgram}.  Constructs the GUI, along with the corresponding Action
+     * Listeners
      */
     private SeaPortProgram() {
 
@@ -519,13 +525,14 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Helper method for {@link #search()}, determines the search type and calls the appropriate search method from the
-     * {@link World} class.  Will call one of four methods: {@link World#indexSearch(ArrayList, int) indexSearch()},
-     * {@link World#nameSearch(ArrayList, String) nameSearch()},
-     * {@link World#skillSearch(ArrayList, String) skillSearch()}, or
-     * {@link World#typeSearch(ArrayList, String) typeSearch()}.
-     * @param type value from {@code searchCombo}, the type of search that will be preformed.
-     * @param target value from {@code fieldText}, the value that will be searched for.
+     * Helper method for {@link #search() search}, determines the search type and calls the appropriate search method
+     * from the {@link World} class.  Will call one of four methods:
+     * {@link World#indexSearch(ArrayList, int) indexSearch}, {@link World#nameSearch(ArrayList, String) nameSearch},
+     * {@link World#skillSearch(ArrayList, String) skillSearch}, or
+     * {@link World#typeSearch(ArrayList, String) typeSearch}.
+     *
+     * @param type      value from {@code searchCombo}, the type of search that will be performed.
+     * @param target    value from {@code fieldText}, the value that will be searched for.
      */
     private void searchType(String type, String target) {
 
@@ -553,9 +560,10 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Helper method for {@link #search()}, builds a string of all search results.
-     * @param results ArrayList of all search results.
-     * @return Formatted String of all search results.
+     * Helper method for {@link #search() search}, builds a string of all search results.
+     *
+     * @param results   ArrayList of all search results.
+     * @return          Formatted String of all search results.
      */
     private String searchResultsToString(ArrayList<Thing> results, String params) {
         StringBuilder out = new StringBuilder("Search Results: " + params);
@@ -661,8 +669,9 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Creates a {@code JOptionPane} with the appropriate error message.
-     * @param type one of the predefined {@code ErrorType} values, used to determine error message.
+     * Creates a {@link JOptionPane} with the appropriate error message.
+     *
+     * @param type A predefined {@link ErrorType}, used to determine the error message.
      */
     private void displayError(ErrorType type) {
         String msg = "Error";
@@ -681,9 +690,10 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Appends a log message to the {@code logTextArea}.  Messages are formatted to contain the current date and time
-     * at the beginning of each log message.  Is called by various methods in the {@link SeaPortProgram}, {@link World},
-     * and {@link Job} classes.
+     * Appends a log message to the {@code logTextArea}. Messages are formatted to contain the current
+     * date and time at the beginning of each log message. Is called by various methods in the {@link
+     * SeaPortProgram}**, {@link World}, and {@link Job} classes.
+     *
      * @param logMessage Message to be displayed in the {@code logTextArea}.
      */
     void updateLog(String logMessage) {
@@ -692,7 +702,8 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Getter method for the {@code jobsTable} variable.
+     * Getter method for {@code jobsTable}.  A {@link JTable} of all {@link Job Jobs} within the {@code SeaPortProgram}.
+     *
      * @return Current {@code jobsTable}.
      */
     JTable getJobsTable() {
@@ -701,6 +712,7 @@ public class SeaPortProgram extends JFrame {
 
     /**
      * Creates an instance of {@link SeaPortProgram};
+     *
      * @param args Will not affect the program.
      */
     public static void main(String[] args) {
