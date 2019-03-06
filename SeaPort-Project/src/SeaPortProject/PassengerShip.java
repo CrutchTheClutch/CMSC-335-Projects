@@ -10,7 +10,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code PassengerShip} object.
+ * Defines the {@code PassengerShip} object.
  *
  * @author  William Crutchfield
  */

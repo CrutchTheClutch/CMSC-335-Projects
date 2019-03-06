@@ -15,13 +15,13 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code Job} object.  Each {@code Job} is assigned to its own thread and each {@link Ship} can only run
+ * Defines the {@code Job} object.  Each {@code Job} is assigned to its own thread and each {@link Ship} can only run
  * a single {@code Job} at one time.  This class also defines {@link JPanel JPanels} for each {@code Job} that will be
  * added to the {@code jobsTable} in {@link SeaPortProgram}.
  *
  * <br/><br/>
  *
- * <p>Note that {@code Job} objects do not perform any actual logic.  {@code Job} objects are simulated tasks using
+ * Note that {@code Job} objects do not perform any actual logic.  {@code Job} objects are simulated tasks using
  * delays within the threads.
  *
  * @author  William Crutchfield
@@ -43,15 +43,18 @@ class Job extends Thing implements Runnable {
 
     // GUI Variables
     private SeaPortProgram program;
+
+    // Create JPanels
     private JPanel statusPanel;
     private JPanel progressPanel;
     private JPanel suspendPanel;
     private JPanel cancelPanel;
     private JLabel statusLabel;
+
     private JProgressBar progressBar;
 
     /**
-     * Constructor for {@code Person}.
+     * Constructor for {@code Job}.
      *
      * @param sc            The current text file data.
      * @param program       Instance of {@link SeaPortProgram}.
@@ -74,39 +77,54 @@ class Job extends Thing implements Runnable {
 
         thread = new Thread(this, ship.getName() + "-" + this.getName());
 
-        //region Job GUI
+        buildGUI();
+    }
+
+    /**
+     * Helper method for the {@link Job#Job(Scanner, SeaPortProgram, HashMap) Constructor}.  Is responsible for
+     * building the GUI and ActionListeners.
+     */
+    private void buildGUI() {
+
+        // Create JPanels
         statusPanel = new JPanel(new BorderLayout());
         progressPanel = new JPanel(new BorderLayout());
         suspendPanel = new JPanel(new BorderLayout());
         cancelPanel = new JPanel(new BorderLayout());
 
+        // Set Panel Borders
         statusPanel.setBorder(null);
         progressPanel.setBorder(null);
         suspendPanel.setBorder(null);
         cancelPanel.setBorder(null);
 
+        // Create Components
         statusLabel = new JLabel();
         progressBar = new JProgressBar (0, 100000);
         JButton suspendBtn = new JButton("Pause");
         JButton cancelBtn = new JButton("Cancel");
 
+        // Set Component Borders
         statusLabel.setBorder(null);
         progressBar.setBorder(null);
         suspendBtn.setBorder(null);
         cancelBtn.setBorder(null);
 
+        // statusLabel Settings
         statusLabel.setForeground(Color.BLACK);
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
         setStatus(status);
 
+        // progressBar Settings
         progressBar.setStringPainted(true);
 
+        // Add Components
         statusPanel.add(statusLabel, BorderLayout.CENTER);
         progressPanel.add(progressBar, BorderLayout.CENTER);
         suspendPanel.add(suspendBtn, BorderLayout.CENTER);
         cancelPanel.add(cancelBtn, BorderLayout.CENTER);
-        //endregion
 
+        // Action Listeners
         suspendBtn.addActionListener(e -> toggleIsRunning());
         cancelBtn.addActionListener(e -> cancelJob());
     }

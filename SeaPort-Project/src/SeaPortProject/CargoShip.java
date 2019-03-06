@@ -10,7 +10,7 @@ import java.util.HashMap;
  *
  * <br/>
  *
- * <p>Defines the {@code CargoShip} object.
+ * Defines the {@code CargoShip} object.
  *
  * @author  William Crutchfield
  */

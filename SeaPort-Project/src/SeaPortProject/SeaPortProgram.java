@@ -22,12 +22,12 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>{@code SeaPortProgram} is the driver class for the entire {@link SeaPortProject}. It's main responsibilities
+ * {@code SeaPortProgram} is the driver class for the entire {@link SeaPortProject}. It's main responsibilities
  * involve constructing the GUI, ActionListeners, the {@link World} object, and starting all {@link Job} threads.
  *
  * <br/><br/>
  *
- * <p> It's important to note that the {@code SeaPortProgram} will only build the {@link World} object from a text
+ * It's important to note that the {@code SeaPortProgram} will only build the {@link World} object from a text
  * file, after it has been read in.
  *
  * @author William Crutchfield
@@ -350,7 +350,7 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Gets all {@link Ship Ships} from the {@link World}.  Removes them from their respective {@link SeaPort}
+     * Helper method for {@link #readFile() readFile}.  Gets all {@link Ship Ships} from the {@link World}.  Removes them from their respective {@link SeaPort}
      * if they do not contain any {@link Job Jobs}.  Then, starts all {@link Job} threads.
      */
     private void startAllJobs() {
@@ -501,13 +501,24 @@ public class SeaPortProgram extends JFrame {
     /**
      * Searches the {@link World} for the value defined in {@code fieldText}.  Search type is determined by the selected
      * item in {@code searchCombo}.  Both {@code fieldText} and {@code searchCombo} are located in the
-     * {@code searchPanel} of the GUI.  Once the search is deemed valid, the helper method
-     * {@link #searchType(String, String)} is called, passing the values of {@code fieldText} and {@code searchCombo}
-     * as arguments.
+     * {@code searchPanel} of the GUI.  Once the search is deemed valid, a {@code switch} will determine the search
+     * type and call the appropriate search method from the {@link World} class.
+     *
+     * <br/><br/>
+     *
+     * The {@code switch} will call one of four methods: {@link World#indexSearch(ArrayList, int) indexSearch},
+     * {@link World#nameSearch(ArrayList, String) nameSearch}, {@link World#skillSearch(ArrayList, String) skillSearch}
+     * , or {@link World#typeSearch(ArrayList, String) typeSearch}.
+     *
+     * <br/><br/>
+     *
+     * Afterwards, the the helper method {@link #searchResultsToString(ArrayList, String) searchResultsToString} is
+     * called and appended to the {@code searchTextArea} to inform the user of the results.
      */
     private void search() {
         String comboSelectedItem = String.valueOf(searchCombo.getSelectedItem());
         String fieldText = searchField.getText();
+        ArrayList<Thing> results = new ArrayList<>();
 
         if (world == null) {
             displayError(ErrorType.NO_WORLD);
@@ -521,46 +532,29 @@ public class SeaPortProgram extends JFrame {
             return;
         }
 
-        searchType(comboSelectedItem, fieldText);
-    }
-
-    /**
-     * Helper method for {@link #search() search}, determines the search type and calls the appropriate search method
-     * from the {@link World} class.  Will call one of four methods:
-     * {@link World#indexSearch(ArrayList, int) indexSearch}, {@link World#nameSearch(ArrayList, String) nameSearch},
-     * {@link World#skillSearch(ArrayList, String) skillSearch}, or
-     * {@link World#typeSearch(ArrayList, String) typeSearch}.
-     *
-     * @param type      value from {@code searchCombo}, the type of search that will be performed.
-     * @param target    value from {@code fieldText}, the value that will be searched for.
-     */
-    private void searchType(String type, String target) {
-
-        ArrayList<Thing> results = new ArrayList<>();
-
-        switch (type) {
+        switch (comboSelectedItem) {
             case "Index":
-                results = world.indexSearch(results, Integer.parseInt(target));
+                results = world.indexSearch(results, Integer.parseInt(fieldText));
                 break;
             case "Name":
-                results = world.nameSearch(results, target);
+                results = world.nameSearch(results, fieldText);
                 break;
             case "Skill":
-                results = world.skillSearch(results, target);
+                results = world.skillSearch(results, fieldText);
                 break;
             case "Type":
-                results = world.typeSearch(results, target);
+                results = world.typeSearch(results, fieldText);
                 break;
         }
 
-        updateLog("World Search - Type: " + type);
-        updateLog("World Search - Target: " + target);
+        updateLog("World Search - Type: " + comboSelectedItem);
+        updateLog("World Search - Target: " + fieldText);
 
-        searchTextArea.append(searchResultsToString(results, type + " - " + target));
+        searchTextArea.append(searchResultsToString(results, comboSelectedItem + " - " + fieldText));
     }
 
     /**
-     * Helper method for {@link #search() search}, builds a string of all search results.
+     * Helper method for {@link #search() search}.  Builds a string of all search results.
      *
      * @param results   ArrayList of all search results.
      * @return          Formatted String of all search results.
@@ -582,7 +576,8 @@ public class SeaPortProgram extends JFrame {
 
     /**
      * Sorts the {@code sortCombo} objects in the {@link World}. Sorts the {@code sortCombo} objects based on the value
-     * of {@code sortTargetCombo}.
+     * of {@code sortTargetCombo}.  Both {@code sortCombo} and {@code sortTargetCombo} are located in the
+     * {@code sortPanel} of the GUI.
      */
     private void sort(){
 

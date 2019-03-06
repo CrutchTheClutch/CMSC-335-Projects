@@ -7,7 +7,7 @@ package SeaPortProject;
  *
  * <br/>
  *
- * <p>Defines the {@code ErrorType} enum.
+ * Defines the {@code ErrorType} enum.
  *
  * @author  William Crutchfield
  * @see     SeaPortProgram

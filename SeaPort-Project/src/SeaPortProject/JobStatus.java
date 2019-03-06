@@ -7,7 +7,7 @@ package SeaPortProject;
  *
  * <br/>
  *
- * <p>Defines the {@code JobStatus} enum.
+ * Defines the {@code JobStatus} enum.
  *
  * @author  William Crutchfield
  * @see     Job
