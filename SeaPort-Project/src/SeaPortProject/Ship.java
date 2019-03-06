@@ -11,7 +11,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code Ship} object.
+ * Defines the {@code Ship} object.
  *
  * @author  William Crutchfield
  * @see     CargoShip

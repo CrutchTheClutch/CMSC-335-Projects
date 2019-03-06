@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code Person} object.
+ * Defines the {@code Person} object.
  *
  * @author  William Crutchfield
  */

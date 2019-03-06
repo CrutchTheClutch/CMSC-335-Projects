@@ -5,7 +5,7 @@
  *
  * <br/>
  *
- * <p>{@code SeaPortProject} will read in a text file, build a {@link SeaPortProject.World} from the text
+ * {@code SeaPortProject} will read in a text file, build a {@link SeaPortProject.World} from the text
  * file, and execute all {@link SeaPortProject.Job Jobs} within the {@link SeaPortProject.World}.
  *
  * @author  William Crutchfield
