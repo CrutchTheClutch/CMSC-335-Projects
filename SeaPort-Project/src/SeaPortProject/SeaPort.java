@@ -113,6 +113,24 @@ class SeaPort extends Thing {
     }
 
     /**
+     * Getter method for {@code resourcePool}.  All {@link Person Persons} within the {@code resourcePool}.
+     *
+     * @return Current {@code resourcePool}.
+     */
+    ArrayList<Person> getResourcePool() {
+        return resourcePool;
+    }
+
+    /**
+     * Setter method for {@code resourcePool}.  All {@link Person Persons} within the {@code resourcePool}.
+     *
+     * @param resourcePool New {@code resourcePool}.
+     */
+    void setResourcePool(ArrayList<Person> resourcePool) {
+        this.resourcePool = resourcePool;
+    }
+
+    /**
      * Returns a string representation of the {@code SeaPort}.
      *
      * @return Formatted string of the {@code SeaPort} object.

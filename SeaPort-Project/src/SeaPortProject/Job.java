@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -32,6 +33,7 @@ class Job extends Thing implements Runnable {
     private JTable jobsTable;
     private DefaultTableModel jobsTableModel;
 
+    private ArrayList<String> requirements = new ArrayList<>();
     private JobStatus status = JobStatus.SUSPENDED;
     private boolean isRunning = true;
     private boolean isCanceled = false;
@@ -59,6 +61,9 @@ class Job extends Thing implements Runnable {
 
         super(sc);
         if (sc.hasNextDouble()) duration = sc.nextDouble();
+        while (sc.hasNext()) {
+            requirements.add(sc.next());
+        }
 
         this.program = program;
         jobsTable = program.getJobsTable();

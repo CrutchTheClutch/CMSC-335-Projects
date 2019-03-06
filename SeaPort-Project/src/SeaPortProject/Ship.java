@@ -22,6 +22,7 @@ class Ship extends Thing {
     private SeaPort port;
     private Dock dock;
     private ArrayList <Job> jobs;
+    private ArrayList <Person> workers;
     private PortTime arrivalTime, dockTime;
     private double weight, length, width, draft;
     private boolean isBusy = false;
@@ -40,6 +41,7 @@ class Ship extends Thing {
         if (sc.hasNextDouble()) width = sc.nextDouble();
         if (sc.hasNextDouble()) draft = sc.nextDouble();
         jobs = new ArrayList<>();
+        workers = new ArrayList<>();
 
         dock = docksHashMap.get(this.getParent());
         if (dock == null) {
@@ -65,6 +67,24 @@ class Ship extends Thing {
      */
     void setJobs(ArrayList<Job> jobs) {
         this.jobs = jobs;
+    }
+
+    /**
+     * Getter method for {@code workers}.  All {@link Person Workers} within the {@code Ship}.
+     *
+     * @return Current {@code workers}.
+     */
+    ArrayList<Person> getWorkers() {
+        return workers;
+    }
+
+    /**
+     * Setter method for {@code workers}.  All {@link Person Workers} within the {@code Ship}.
+     *
+     * @param workers New {@code workers}.
+     */
+    void setWorkers(ArrayList<Person> workers) {
+        this.workers = workers;
     }
 
     /**

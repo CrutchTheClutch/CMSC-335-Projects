@@ -138,12 +138,18 @@ public class World extends Thing {
     /**
      * Adds a {@link Person} to the {@code World}.
      *
+     * <br/><br/>
+     *
+     * Note, that the {@link Person} will be added to both {@link SeaPort#getPersons() persons} and
+     * {@link SeaPort#getResourcePool() resourcePool}.
+     *
      * @param portsHashMap  HashMap containing all {@link SeaPort Seaports} and their respective {@code index} values.
      * @param person        {@link Person} that will be added.
      */
     private void addPerson(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Person> personsHashMap, Person person) {
         SeaPort port = portsHashMap.get(person.getParent());
         port.getPersons().add(person);
+        port.getResourcePool().add(person);
         personsHashMap.put(person.getIndex(), person);
     }
 
