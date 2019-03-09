@@ -22,7 +22,7 @@ import java.util.Scanner;
  * <br/><br/>
  *
  * Note that {@code Job} objects do not perform any actual logic.  {@code Job} objects are simulated tasks using
- * delays within the threads.
+ * delays within their respective thread.
  *
  * @author  William Crutchfield
  */
@@ -146,7 +146,8 @@ class Job extends Thing implements Runnable {
 
     /**
      * Sets the {@link JobStatus} for the current {@code Job}.  Depending on the status, the {@code statusPanel} color
-     * will be changed, along with the boolean {@code isFinished}.
+     * will be changed, along with the boolean {@code isFinished}.  This method also updates the
+     * {@link SeaPortProgram SeaPortProgram's} log.
      *
      * @param status A predefined {@link JobStatus}, used to determine the status of the current {@code Job}.
      */

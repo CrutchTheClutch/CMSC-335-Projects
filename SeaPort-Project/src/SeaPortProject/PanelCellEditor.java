@@ -5,14 +5,26 @@ import javax.swing.table.TableCellEditor;
 import java.awt.*;
 
 /**
- * Filename :   PanelCellEditor
- * Author :     William Crutchfield
- * Date:        2/20/2019
- * Description: Custom CellEditor for JPanel Components
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code PanelCellEditor} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; February 20th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * Defines the {@code PanelCellEditor}.  Allows the user to interact with {@link JPanel} components in a JTable.
+ *
+ * @author  William Crutchfield
  */
 public class PanelCellEditor extends AbstractCellEditor implements TableCellEditor {
     private Component editor;
 
+    /**
+     * Returns a {@link JPanel} component if the cell contains a {@link JPanel}.
+     *
+     * <br/><br/>
+     *
+     * {@inheritDoc}
+     */
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         if (table.getModel().getColumnClass(column) == JPanel.class) {
