@@ -67,9 +67,6 @@ public class SeaPortProgram extends JFrame {
                 queuedShipsSortTargets, peopleSortTargets, jobsSortTargets
         };
 
-        // JTable Header Titles
-        final String[] resourcesTableTitles = {"This", "Is", "A", "Placeholder", "", ""};
-
         // Preset Dimensions
         final Dimension frameDimension = new Dimension(1125,619);
 
@@ -203,7 +200,7 @@ public class SeaPortProgram extends JFrame {
 
         // Set Table Models
         DefaultTableModel jobsTableModel = new JobsTableModel();
-        DefaultTableModel resourcesTableModel = new DefaultTableModel(resourcesTableTitles, 0);
+        DefaultTableModel resourcesTableModel = new ResourcesTableModel();
 
         // Create Components
         worldTree = new JTree(new DefaultMutableTreeNode("SeaPorts"));    // Tree View - World Tree
@@ -260,6 +257,12 @@ public class SeaPortProgram extends JFrame {
         jobsTable.setDefaultEditor(Component.class, new PanelCellEditor());
         jobsTable.getTableHeader().setReorderingAllowed(false);
         jobsTable.setRowHeight(25);
+
+        // jobsTable Settings
+        resourcesTable.setDefaultRenderer(Component.class, new PanelCellRenderer());
+        resourcesTable.setDefaultEditor(Component.class, new PanelCellEditor());
+        resourcesTable.getTableHeader().setReorderingAllowed(false);
+        resourcesTable.setRowHeight(25);
 
         // JSplit Pane Settings
         logsSplitPane.setResizeWeight(0.5);
@@ -350,21 +353,23 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Helper method for {@link #readFile() readFile}.  Gets all {@link Ship Ships} from the {@link World}.  Removes them from their respective {@link SeaPort}
-     * if they do not contain any {@link Job Jobs}.  Then, starts all {@link Job} threads.
+     * Helper method for {@link #readFile() readFile}.  Gets all {@link Ship Ships} from the {@link World}.  Removes
+     * them from their respective {@link SeaPort} if they do not contain any {@link Job Jobs}.  Then, starts all
+     * {@link Job} threads.
      */
     private void startAllJobs() {
         for (SeaPort port : world.getPorts()) {
             for (Dock dock : port.getDocks()) {
-                if (dock.getShip().getJobs().isEmpty()) {
-                    updateLog("Ship " + dock.getShip().getName() + " Departed from " + dock.getName());
+                Ship ship = dock.getShip();
+                if (ship != null && ship.getJobs().isEmpty()) {
+                    updateLog(JobLogMessage.DEPARTED, dock.getName(), ship.getName());
                     dock.setShip(null);
                     while (!port.getQueue().isEmpty()) {
-                        Ship ship = port.getQueue().remove(0);
-                        if (!ship.getJobs().isEmpty()) {
-                            dock.setShip(ship);
-                            ship.setDock(dock);
-                            updateLog("Ship " + ship.getName() + " Arrived at " + dock.getName());
+                        Ship newShip = port.getQueue().remove(0);
+                        if (!newShip.getJobs().isEmpty()) {
+                            dock.setShip(newShip);
+                            newShip.setDock(dock);
+                            updateLog(JobLogMessage.ARRIVED, dock.getName(), newShip.getName());
                             break;
                         }
                     }
@@ -390,6 +395,7 @@ public class SeaPortProgram extends JFrame {
 
         updateWorldDisplay();
         updateJobDisplay();
+        updateResourceDisplay();
 
         updateLog("Display Update Success");
 
@@ -481,21 +487,39 @@ public class SeaPortProgram extends JFrame {
         for (SeaPort port : world.getPorts()) {
             for (Ship ship : port.getShips()) {
                 for (Job job : ship.getJobs()) {
-                    jobsTableModel.addRow(new Object[]{ship.getName(), job.getName(), job.getStatusPanel(),
-                            job.getProgressPanel(), job.getSuspendPanel(), job.getCancelPanel()});
+                    Object[] row = new Object[] {ship.getPort().getName(), ship.getName(), job.getName(),
+                            job.getStatusPanel(), job.getProgressPanel(), job.getSuspendPanel(), job.getCancelPanel()};
+                    jobsTableModel.addRow(row);
                 }
             }
         }
     }
 
     /**
-     * Clears both {@code logTextArea} and {@code searchTextArea} of all text.  Then, removes all finished
-     * {@link Job Jobs} from the {@code jobsTable}.
+     * Updates the {@code resourcesTable} GUI.
+     */
+    synchronized void updateResourceDisplay() {
+        DefaultTableModel resourcesTableModel = (DefaultTableModel) resourcesTable.getModel();
+        resourcesTableModel.setRowCount(0);
+
+        for (SeaPort port : world.getPorts()) {
+            for (Person person : port.getPersons()) {
+                Object[] row = new Object[]{port.getName(), person.getName(), person.getSkill(),
+                        person.getStatusPanel(), person.getLocation()};
+                resourcesTableModel.addRow(row);
+            }
+        }
+    }
+
+    /**
+     * Clears both {@code logTextArea} and {@code searchTextArea} of all text.  Then, updates the {@code Job}, and
+     * {@code Resource} JTable's.
      */
     private void clear() {
         logTextArea.setText("");
         searchTextArea.setText("");
         updateJobDisplay();
+        updateResourceDisplay();
     }
 
     /**
@@ -687,13 +711,50 @@ public class SeaPortProgram extends JFrame {
     /**
      * Appends a log message to the {@code logTextArea}. Messages are formatted to contain the current
      * date and time at the beginning of each log message. Is called by various methods in the {@link
-     * SeaPortProgram}**, {@link World}, and {@link Job} classes.
+     * SeaPortProgram}, and {@link Job} classes.
      *
      * @param logMessage Message to be displayed in the {@code logTextArea}.
      */
-    void updateLog(String logMessage) {
+    private synchronized void updateLog(String logMessage) {
         String currentTime = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS").format(new Date().getTime());
         logTextArea.append(currentTime + " | " + logMessage + "\n");
+    }
+
+    /**
+     * Appends a log message to the {@code logTextArea}.  Is used to construct a log message based on the
+     * {@link JobLogMessage} enum.
+     *
+     * @param type The {@link JobLogMessage} that will be displayed.
+     * @param current {@link Job} name or {@link Dock} name.
+     * @param shipName {@link Ship} name.
+     */
+    synchronized void updateLog(JobLogMessage type, String current, String shipName) {
+        String msg = null;
+        switch (type) {
+            case STARTED:
+                msg = current + " has STARTED.\t\t - Ship " + shipName;
+                break;
+            case FINISHED:
+                msg = current + " has FINISHED.\t\t - Ship " + shipName;
+                break;
+            case CANCELED:
+                msg = current + " has been CANCELED.\t - Ship " + shipName;
+                break;
+            case ARRIVED:
+                msg = "ARRIVED at " + current + ".\t\t\t - Ship " + shipName;
+                break;
+            case DEPARTED:
+                msg = "DEPARTED " + current + ".\t\t\t - Ship " + shipName;
+                break;
+            case RESOURCES_REQUIRED:
+                msg = "RESOURCE NOT AVAILABLE: " + current;
+                if (current.length() < 5) {
+                    msg = msg + "\t\t - Ship " + shipName;
+                } else {
+                    msg = msg + "\t - Ship " + shipName;
+                }
+        }
+        updateLog(msg);
     }
 
     /**

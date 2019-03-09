@@ -20,10 +20,10 @@ public class JobsTableModel extends DefaultTableModel implements TableModel {
     @Override
     public Class<?> getColumnClass(int col) {
         switch (col) {
-            case 2:
             case 3:
             case 4:
             case 5:
+            case 6:
                 return JPanel.class;
         }
         return Object.class;
@@ -32,8 +32,8 @@ public class JobsTableModel extends DefaultTableModel implements TableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-            case 4:
             case 5:
+            case 6:
                 return true;
             default:
                 return false;

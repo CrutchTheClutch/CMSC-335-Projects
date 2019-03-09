@@ -79,6 +79,8 @@ public class World extends Thing {
                         break;
                     case "person":
                         Person person = new Person(sc);
+                        String location = "Port: " + portsHashMap.get(person.getParent()).getName();
+                        person.setLocation(location);
                         addPerson(portsHashMap, personsHashMap, person);
                         break;
                     case "job":

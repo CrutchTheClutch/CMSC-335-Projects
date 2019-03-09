@@ -164,12 +164,12 @@ class Job extends Thing implements Runnable {
                 break;
             case DONE:
                 statusPanel.setBackground(Color.RED);
-                program.updateLog(this.getName() + " has Finished");
+                program.updateLog(JobLogMessage.FINISHED, this.getName(), ship.getName());
                 isFinished = true;
                 break;
-            case CANCELLED:
+            case CANCELED:
                 statusPanel.setBackground(Color.RED);
-                program.updateLog(this.getName() + " has been Cancelled");
+                program.updateLog(JobLogMessage.CANCELED, this.getName(), ship.getName());
                 isFinished = true;
                 break;
         }
@@ -232,15 +232,18 @@ class Job extends Thing implements Runnable {
         long stopTime = (long) (startTime + duration * 1000);
 
         synchronized (port) {
-            while (ship.getIsBusy() || ship.getDock() == null) {
+            canRun();
+            while (isWaiting()) {
                 setStatus(JobStatus.WAITING);
-                try{
+                try {
                     port.wait();
                 } catch (InterruptedException ignored) {}
             }
+            program.updateResourceDisplay();
             ship.setIsBusy(true);
-            program.updateLog(this.getName() + " has Started");
         }
+
+        program.updateLog(JobLogMessage.STARTED, this.getName(), ship.getName());
 
         while (startTime < stopTime && !isCanceled) {
             try {
@@ -258,14 +261,17 @@ class Job extends Thing implements Runnable {
         }
 
         if (isCanceled && status != JobStatus.DONE) {
-            setStatus(JobStatus.CANCELLED);
+            setStatus(JobStatus.CANCELED);
         } else {
             setStatus(JobStatus.DONE);
         }
 
         isFinished = true;
+        jobsTable.tableChanged(new TableModelEvent(jobsTableModel));
 
         synchronized (port) {
+            deallocateWorkers();
+            program.updateResourceDisplay();
             ship.setIsBusy(false);
             for (Job jobs : ship.getJobs()) {
                 if (!(jobs.isFinished)) {
@@ -273,19 +279,152 @@ class Job extends Thing implements Runnable {
                     return;
                 }
             }
-            while (!port.getQueue().isEmpty()) {
-                Ship newShip = port.getQueue().remove(0);
-                if (!newShip.getJobs().isEmpty()) {
-                    program.updateLog("Ship " + ship.getName() + " Departed from " + ship.getDock().getName());
-                    Dock dock = ship.getDock();
+
+            Dock dock = ship.getDock();
+
+            if (dock != null) {
+                program.updateLog(JobLogMessage.DEPARTED, dock.getName(), ship.getName());
+                dock.setShip(null);
+
+                if (!port.getQueue().isEmpty()){
+                    Ship newShip = port.getQueue().remove(0);
                     dock.setShip(newShip);
                     newShip.setDock(dock);
-                    program.updateLog("Ship " + newShip.getName() + " Arrived at " + dock.getName());
-                    port.notifyAll();
-                    return;
+                    program.updateLog(JobLogMessage.ARRIVED, dock.getName(), newShip.getName());
+                }
+            } else {
+                program.updateLog(JobLogMessage.DEPARTED, ship.getPort().getName(), ship.getName());
+            }
+
+            port.notifyAll();
+        }
+    }
+
+    /**
+     * Helper method for {@link #run() run}.  Checks to see if {@code Job} requirements can ever be filled.  If not,
+     * the {@code Job} can never run, therefore it is canceled.
+     */
+    private void canRun() {
+        boolean canRun = hasRequiredWorkers(port.getPersons());
+        if (!canRun) {
+            cancelJob();
+        }
+    }
+
+    /**
+     * Helper method for {@link #run() run}.  Each {@code Job} must wait for the proper conditions before executing.
+     * This method checks to see if the {@code Job} needs to continue waiting.
+     *
+     * <br/><br/>
+     *
+     * If all of the following conditions are true:
+     *
+     * <ol>
+     *     <li>
+     *         The {@code Job}'s parent {@link Ship}:
+     *         <ol type="a">
+     *             <li>Is located at a {@link Dock}</li>
+     *             <li>Is not busy</li>
+     *         </ol>
+     *     </li>
+     *     <li>
+     *         The {@code Job}'s parent {@link SeaPort#getResourcePool() resourcePool}:
+     *         <ol type="a">
+     *             <li>Has the required workers</li>
+     *             <li>Can allocate the required workers</li>
+     *         </ol>
+     *     </li>
+     * </ol>
+     *
+     * Then the {@code Job} should no longer wait to execute.
+     *
+     * @return {@code true} if the {@code Job} must continue to wait.  <br/>
+     * {@code false} if the {@code Job} no longer needs to wait.
+     */
+    private synchronized boolean isWaiting() {
+        if (!isRunning) {
+            return false;
+        }
+
+        if (ship.getIsBusy() || ship.getDock() == null) {
+            return true;
+        } else {
+            if (!requirements.isEmpty()) {
+                // if Job has requirements, Job should NOT wait if workers CAN BE allocated
+                boolean canAllocate = hasRequiredWorkers(port.getResourcePool());
+                if (canAllocate) {
+                    allocateWorkers();
+                    notifyAll();
+                }
+                return !canAllocate;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Helper method for both {@link #canRun() canRun} and {@link #isWaiting() isWaiting}.  This method searches an
+     * {@link ArrayList} of {@link Person Persons} for the required workers.
+     *
+     * @param workers {@link ArrayList} of {@link Person Persons} to be searched.
+     * @return {@code true} if all of the required workers are found.  <br/>
+     * {@code false} if all of the required workers are NOT found.
+     */
+    private boolean hasRequiredWorkers(ArrayList<Person> workers) {
+        ArrayList<Integer> indexes = new ArrayList<>();
+        for (String requirement : requirements) {
+            boolean workerFound = false;
+            for (Person person : workers) {
+                if (person.getSkill().equals(requirement) && !indexes.contains(person.getIndex())){
+                    workerFound = true;
+                    indexes.add(person.getIndex());
+                    break;
+                }
+            }
+            if (!workerFound) {
+                program.updateLog(JobLogMessage.RESOURCES_REQUIRED, requirement, ship.getName());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Helper method for {@link #isWaiting() isWaiting}.  Allocates the required workers to the appropriate ship.
+     * Removes them from the {@link SeaPort#getResourcePool() resourcePool}.
+     */
+    private void allocateWorkers() {
+        ArrayList<Person> workers = new ArrayList<>();
+        for (String requirement : requirements) {
+            for (Person worker : port.getResourcePool()) {
+                if (worker.getSkill().equals(requirement) && worker.getStatus() == WorkerStatus.AVAILABLE){
+                    worker.setLocation("Ship: " + ship.getName());
+                    worker.setStatus(WorkerStatus.WORKING);
+                    workers.add(worker);
+                    break;
                 }
             }
         }
+        ship.setWorkers(workers);
+        port.getResourcePool().removeAll(workers);
+        program.updateResourceDisplay();
+    }
+
+    /**
+     * Helper method for {@link #run() isWaiting}.  Deallocates all workers from the appropriate ship.  Returns
+     * them to the {@link SeaPort#getResourcePool() resourcePool}.
+     */
+    private void deallocateWorkers() {
+        ArrayList<Person> workers = new ArrayList<>();
+        for (Person worker : ship.getWorkers()) {
+            worker.setLocation("Port: " + port.getName());
+            worker.setStatus(WorkerStatus.AVAILABLE);
+            port.getResourcePool().add(worker);
+            workers.add(worker);
+        }
+        ship.getWorkers().removeAll(workers);
+        program.updateResourceDisplay();
     }
 
     /**
