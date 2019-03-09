@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code Thing} object.  Is the foundation for the {@link World} object, and all objects within
+ * Defines the {@code Thing} object.  Is the foundation for the {@link World} object, and all objects within
  * it.  Ensures that all objects in the {@link World} have a name, index, and parent.  Ensures the {@link World} has
  * a name and index.
  *

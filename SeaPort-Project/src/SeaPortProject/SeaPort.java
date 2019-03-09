@@ -10,13 +10,14 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code SeaPort} object. Contains {@link Dock Docks}, {@link Ship Ships}, and {@link Person Persons}.
+ * Defines the {@code SeaPort} object. Contains {@link Dock Docks}, {@link Ship Ships}, and {@link Person Persons}.
  *
  * <br/><br/>
  *
- * <p>Note that each of the objects listed are contained in {@link ArrayList ArrayLists}, with {@link Ship Ships}
- * occupying two: one for {@link Ship Ships} in the {@code SeaPort}'s {@code Queue}, and the other for all
- * {@link Ship Ships} within the {@code SeaPort}.
+ * Note that each of the objects listed are contained in {@link ArrayList ArrayLists}, with {@link Ship Ships}, and
+ * {@link Person Persons} occupying two.  {@link Ship Ships} are used for the {@code SeaPort}'s {@code queue}, and the
+ * total {@link Ship Ships} within the {@code SeaPort}.  {@link Person Persons} are used for the {@code SeaPort}'s
+ * {@code resourcePool}, and the total {@link Person Persons} within the {@code SeaPort}.
  *
  * @author  William Crutchfield
  */
@@ -26,6 +27,7 @@ class SeaPort extends Thing {
     private ArrayList <Ship> queue;
     private ArrayList <Ship> ships;
     private ArrayList <Person> persons;
+    private ArrayList <Person> resourcePool;
 
     /**
      * Constructor for {@code SeaPort}.
@@ -38,6 +40,7 @@ class SeaPort extends Thing {
         queue = new ArrayList<>();
         ships = new ArrayList<>();
         persons = new ArrayList<>();
+        resourcePool = new ArrayList<>();
     }
 
     /**
@@ -110,6 +113,24 @@ class SeaPort extends Thing {
      */
     void setPersons(ArrayList<Person> persons) {
         this.persons = persons;
+    }
+
+    /**
+     * Getter method for {@code resourcePool}.  All {@link Person Persons} within the {@code resourcePool}.
+     *
+     * @return Current {@code resourcePool}.
+     */
+    ArrayList<Person> getResourcePool() {
+        return resourcePool;
+    }
+
+    /**
+     * Setter method for {@code resourcePool}.  All {@link Person Persons} within the {@code resourcePool}.
+     *
+     * @param resourcePool New {@code resourcePool}.
+     */
+    void setResourcePool(ArrayList<Person> resourcePool) {
+        this.resourcePool = resourcePool;
     }
 
     /**

@@ -11,13 +11,13 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code World} object.  Is responsible for processing the text file data, and creating the
- * corresponding objects within it.  The {@code World} acts as the "parent" object for all classes that extend
- * {@link Thing}.
+ * Defines the {@code World} object.  Contains one or more {@link SeaPort SeaPorts}.  Is responsible for processing the
+ * text file data, and creating the corresponding objects within it.  The {@code World} acts as the "parent" object for
+ * all classes that extend {@link Thing}.
  *
  * <br/><br/>
  *
- * <p>Note that it is necessary to pass an instance of {@link SeaPortProgram} to the {@code World} for {@link Job}
+ * Note that it is necessary to pass an instance of {@link SeaPortProgram} to the {@code World} for {@link Job}
  * object creation.
  *
  * @author William Crutchfield
@@ -79,6 +79,8 @@ public class World extends Thing {
                         break;
                     case "person":
                         Person person = new Person(sc);
+                        String location = "Port: " + portsHashMap.get(person.getParent()).getName();
+                        person.setLocation(location);
                         addPerson(portsHashMap, personsHashMap, person);
                         break;
                     case "job":
@@ -115,6 +117,12 @@ public class World extends Thing {
     /**
      * Adds a {@link Ship} to the {@code World}.
      *
+     * <br/><br/>
+     *
+     * Note, that the parent of the {@link Ship} determines how it is added to the {@code World}.  If the parent is a
+     * {@link SeaPort}, it will be added to the respective {@link SeaPort#getQueue() queue}.
+     * If the parent is a {@link Dock}, it will be added via the {@link Dock#setShip(Ship) setShip} method.
+     *
      * @param portsHashMap  HashMap containing all {@link SeaPort Seaports} and their respective {@code index} values.
      * @param docksHashMap  HashMap containing all {@link Dock Docks} and their respective {@code index} values.
      * @param ship          {@link Ship} that will be added.
@@ -138,12 +146,18 @@ public class World extends Thing {
     /**
      * Adds a {@link Person} to the {@code World}.
      *
+     * <br/><br/>
+     *
+     * Note, that the {@link Person} will be added to both {@link SeaPort#getPersons() persons} and
+     * {@link SeaPort#getResourcePool() resourcePool}.
+     *
      * @param portsHashMap  HashMap containing all {@link SeaPort Seaports} and their respective {@code index} values.
      * @param person        {@link Person} that will be added.
      */
     private void addPerson(HashMap<Integer, SeaPort> portsHashMap, HashMap<Integer, Person> personsHashMap, Person person) {
         SeaPort port = portsHashMap.get(person.getParent());
         port.getPersons().add(person);
+        port.getResourcePool().add(person);
         personsHashMap.put(person.getIndex(), person);
     }
 

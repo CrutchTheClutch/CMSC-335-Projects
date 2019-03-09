@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * <p>Defines the {@code Dock} object.  Contains a single {@link Ship}.
+ * Defines the {@code Dock} object.  May contain a single {@link Ship}.
  *
  * @author  William Crutchfield
  */

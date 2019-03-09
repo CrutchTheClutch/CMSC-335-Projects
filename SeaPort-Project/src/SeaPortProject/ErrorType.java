@@ -7,9 +7,8 @@ package SeaPortProject;
  *
  * <br/>
  *
- * <p>Defines the {@code ErrorType} enum.
+ * Defines the {@code ErrorType} enum.  Used to determine the appropriate error message for {@link SeaPortProgram}.
  *
  * @author  William Crutchfield
- * @see     SeaPortProgram
  */
 enum ErrorType {NO_FILE, NO_WORLD, MISSING_SEARCH_PARAM}
