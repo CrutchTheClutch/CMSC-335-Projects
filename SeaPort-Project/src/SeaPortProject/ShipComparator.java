@@ -2,6 +2,19 @@ package SeaPortProject;
 
 import java.util.Comparator;
 
+/**
+ * <strong>Filename:</strong> &emsp;&emsp;&emsp; {@code ShipComparator} <br/>
+ * <strong>Author:</strong> &emsp;&emsp;&emsp;&emsp; William Crutchfield <br/>
+ * <strong>Date Created:</strong> &emsp; February 7th, 2019 <br/>
+ *
+ * <br/>
+ *
+ * Defines the {@code ShipComparator} object.  Is used to compare two {@link Ship} objects.  If two ships are compared, and
+ * weight, length, width, and draft are all equal; then {@link ThingComparator} is called.  Technically extending
+ * {@link ThingComparator}, but does not do so explicitly.
+ *
+ * @author  William Crutchfield
+ */
 public class ShipComparator implements Comparator<Ship> {
 
     private String target;
@@ -9,7 +22,7 @@ public class ShipComparator implements Comparator<Ship> {
 
     /**
      * ShipComparator Constructor
-     * @param target <code>Ship</code> compare parameter
+     * @param target {@code Ship} compare parameter
      */
     ShipComparator(String target) {
         this.target = target;
@@ -34,8 +47,8 @@ public class ShipComparator implements Comparator<Ship> {
 
     /**
      * Ship Compare method, implemented from the Comparator Interface
-     * @param ship1 first <code>Ship</code> to be compared
-     * @param ship2 second <code>Ship</code> to be compared
+     * @param ship1 first {@code Ship} to be compared
+     * @param ship2 second {@code Ship} to be compared
      * @return 0 if ship1's target is equal to ship2's target;
      * a value less than 0 if ship1's target is less than ship2's target;
      * a value greater than 0 if ship1's target is greater than ship2's target.

@@ -11,7 +11,7 @@ import java.util.Scanner;
  *
  * <br/>
  *
- * Defines the {@code Person} object.
+ * Defines the {@code Person} object.  Works on {@link Ship Ships}, and complete {@link Job Jobs}.
  *
  * @author  William Crutchfield
  */

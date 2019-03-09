@@ -323,7 +323,8 @@ public class SeaPortProgram extends JFrame {
     }
 
     /**
-     * Reads a text file into {@code SeaPortProgram}, then builds the {@link World} object with the data.
+     * Reads a text file into {@code SeaPortProgram}, then builds the {@link World} object with the data.  Before a
+     * file is read in, ensures no Jobs are running from previous files.
      */
     private void readFile() {
         JFileChooser jFileChooser = new JFileChooser(".");
